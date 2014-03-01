@@ -1,0 +1,9 @@
+[submodule "libraries/blue_cap_peripheral"]
+	path = libraries/blue_cap_peripheral
+	url = git@github.com:troystribling/bluecap-arduino.git
+[submodule "libraries/utils"]
+	path = libraries/utils
+	url = git@github.com:troystribling/utils-arduino.git
+[submodule "libraries/aci"]
+	path = libraries/aci
+	url = git@github.com:troystribling/nordic-nrf8001.git
