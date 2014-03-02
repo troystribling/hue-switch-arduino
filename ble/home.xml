@@ -132,6 +132,48 @@
             <PeriodForReadingThisCharacteristic>0</PeriodForReadingThisCharacteristic>
             <PeriodForProperties/>
         </Characteristic>
+        <Characteristic>
+            <Name>Hu Sunrise Switch</Name>
+            <Uuid>0020</Uuid>
+            <DefaultValue>0</DefaultValue>
+            <UsePresentationFormat>0</UsePresentationFormat>
+            <MaxDataLength>1</MaxDataLength>
+            <AttributeLenType>1</AttributeLenType>
+            <ForceOpen>false</ForceOpen>
+            <Properties>
+                <WriteWithoutResponse>false</WriteWithoutResponse>
+                <Write>true</Write>
+                <Notify>false</Notify>
+                <Indicate>false</Indicate>
+                <Broadcast>false</Broadcast>
+            </Properties>
+            <SetPipe>true</SetPipe>
+            <AckIsAuto>false</AckIsAuto>
+            <PresentationFormatDescriptor Value="0000" Exponent="0" Format="1" NameSpace="01" Unit="0000"/>
+            <PeriodForReadingThisCharacteristic>0</PeriodForReadingThisCharacteristic>
+            <PeriodForProperties/>
+        </Characteristic>
+        <Characteristic>
+            <Name>Hue Sunset Switch</Name>
+            <Uuid>0019</Uuid>
+            <DefaultValue>0</DefaultValue>
+            <UsePresentationFormat>0</UsePresentationFormat>
+            <MaxDataLength>1</MaxDataLength>
+            <AttributeLenType>1</AttributeLenType>
+            <ForceOpen>false</ForceOpen>
+            <Properties>
+                <WriteWithoutResponse>false</WriteWithoutResponse>
+                <Write>true</Write>
+                <Notify>false</Notify>
+                <Indicate>false</Indicate>
+                <Broadcast>false</Broadcast>
+            </Properties>
+            <SetPipe>true</SetPipe>
+            <AckIsAuto>false</AckIsAuto>
+            <PresentationFormatDescriptor Value="0000" Exponent="0" Format="1" NameSpace="01" Unit="0000"/>
+            <PeriodForReadingThisCharacteristic>0</PeriodForReadingThisCharacteristic>
+            <PeriodForProperties/>
+        </Characteristic>
     </Service>
     <Service Type="local" PrimaryService="true">
         <Name>Location</Name>
