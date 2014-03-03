@@ -16,7 +16,6 @@
 Peripheral peripheral(REQN_PIN, RDYN_PIN, EEPROM_OFFSET, MAX_BONDS);
 
 void setup() {
-  Serial::begin(9600);
   peripheral.begin();
 }
 

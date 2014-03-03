@@ -6,7 +6,7 @@
 static services_pipe_type_mapping_t services_pipe_type_mapping[NUMBER_OF_PIPES] = SERVICES_PIPE_TYPE_MAPPING_CONTENT;
 static hal_aci_data_t setup_msgs[NB_SETUP_MESSAGES] PROGMEM = SETUP_MESSAGES_CONTENT;
 
-Peripheral::Peripheral(uint8_t _reqn, uint8_t _rdyn, uint16_t _eepromOffset, uinit8_t _maxBonds) : BlueCapBondedPeripheral(_reqn, _rdyn, _eepromOffset, _maxBonds) {
+Peripheral::Peripheral(uint8_t _reqn, uint8_t _rdyn, uint16_t _eepromOffset, uint8_t _maxBonds) : BlueCapBondedPeripheral(_reqn, _rdyn, _eepromOffset, _maxBonds) {
   setServicePipeTypeMapping(services_pipe_type_mapping, NUMBER_OF_PIPES);
   setSetUpMessages(setup_msgs, NB_SETUP_MESSAGES);
 }

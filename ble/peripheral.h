@@ -25,6 +25,6 @@ protected:
   void didBond();
   bool doTimingChange();
 
-}
+};
 
 #endif
