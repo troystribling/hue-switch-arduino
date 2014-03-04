@@ -15,7 +15,6 @@ public:
 protected:
 
   void didReceiveData(uint8_t characteristicId, uint8_t* data, uint8_t size);
-  void didReceiveCommandResponse(uint8_t commandId, uint8_t* data, uint8_t size);
   void didDisconnect();
   void didTimeout();
   void didConnect();
