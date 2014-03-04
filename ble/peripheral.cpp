@@ -22,19 +22,27 @@ void Peripheral::loop() {
 
 void Peripheral::didReceiveData(uint8_t characteristicId, uint8_t* data, uint8_t size) {
   switch(characteristicId) {
-    case PIPE_HUE_LIGHTS_SWITCH_ALL_HUE_LIGHTS_SWITCH_RX_ACK:
+    case PIPE_LOCATION_LATITUDE_RX_ACK:
+      break;
+    case PIPE_LOCATION_LONGITUDE_RX_ACK:
+      break;
+    case PIPE_HUE_LIGHTS_SWITCH_HUE_LIGHT_SWITCH_RX_ACK:
       break;
     case PIPE_HUE_LIGHTS_SWITCH_HUE_SUNRISE_SWITCH_RX_ACK:
       break;
     case PIPE_HUE_LIGHTS_SWITCH_HUE_SUNSET_SWITCH_RX_ACK:
       break;
-    case PIPE_LOCATION_LATITUDE_RX_ACK:
+    case PIPE_HUE_LIGHT_SCENES_HUE_SCENE_NAME_RX_ACK:
       break;
-    case PIPE_LOCATION_LONGITUDE_RX_ACK:
+    case PIPE_HUE_LIGHT_SCENES_CURRENT_HUE_SCENE_ID_RX_ACK:
       break;
-    case PIPE_HUE_LIGHT_SCENES_HUE_SCENE_NAME_WITH_ID_RX_ACK;
+    case PIPE_HUE_LIGHT_SCENES_HUE_LIGHT_COLOR_RX_ACK:
       break;
-    case PIPE_HUE_LIGHT_SCENES_CURRENT_HUE_SCENE_ID_RX_ACK;
+    case PIPE_HUE_LIGHT_SCENES_HUE_NEXT_SCENE_RX_ACK:
+      break;
+    case PIPE_HUE_LIGHT_SCENES_HUE_SCENE_OPERATION_RX_ACK:
+      break;
+    case PIPE_HUE_LIGHT_SCENES_HUE_NEXT_LIGHT_RX_ACK:
       break;
     default:
       break;
