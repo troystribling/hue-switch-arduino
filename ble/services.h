@@ -82,9 +82,9 @@
 #define PIPE_HUE_LIGHTS_SWITCH_HUE_SUNRISE_SWITCH_SET          10
 #define PIPE_HUE_LIGHTS_SWITCH_HUE_SUNRISE_SWITCH_SET_MAX_SIZE 1
 
-/* Service: Hue Light Scenes - Characteristic: Number of Hue  Scenes - Pipe: SET */
-#define PIPE_HUE_LIGHT_SCENES_NUMBER_OF_HUE__SCENES_SET          11
-#define PIPE_HUE_LIGHT_SCENES_NUMBER_OF_HUE__SCENES_SET_MAX_SIZE 1
+/* Service: Hue Light Scenes - Characteristic: Number of Hue Scenes - Pipe: SET */
+#define PIPE_HUE_LIGHT_SCENES_NUMBER_OF_HUE_SCENES_SET          11
+#define PIPE_HUE_LIGHT_SCENES_NUMBER_OF_HUE_SCENES_SET_MAX_SIZE 1
 
 /* Service: Hue Light Scenes - Characteristic: Hue Scene ID - Pipe: RX_ACK */
 #define PIPE_HUE_LIGHT_SCENES_HUE_SCENE_ID_RX_ACK          12

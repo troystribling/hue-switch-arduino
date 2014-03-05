@@ -120,7 +120,7 @@
         <Name>Hue Light Scenes</Name>
         <Uuid BaseUUID="2f0a000069aaf3163e784194989a6c1a" BaseUUIDName="gnos.us Base UUID">0021</Uuid>
         <Characteristic>
-            <Name>Number of Hue  Scenes</Name>
+            <Name>Number of Hue Scenes</Name>
             <Uuid BaseUUID="2f0a000069aaf3163e784194989a6c1a" BaseUUIDName="gnos.us Base UUID">0012</Uuid>
             <DefaultValue>0</DefaultValue>
             <UsePresentationFormat>0</UsePresentationFormat>
