@@ -222,7 +222,7 @@
         </Characteristic>
         <Characteristic>
             <Name>Hue Switches</Name>
-            <Uuid>0025</Uuid>
+            <Uuid BaseUUID="2f0a000069aaf3163e784194989a6c1a" BaseUUIDName="gnos.us Base UUID">0027</Uuid>
             <DefaultValue>0</DefaultValue>
             <UsePresentationFormat>0</UsePresentationFormat>
             <MaxDataLength>1</MaxDataLength>
