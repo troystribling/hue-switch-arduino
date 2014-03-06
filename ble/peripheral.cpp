@@ -32,11 +32,7 @@ void Peripheral::didReceiveData(uint8_t characteristicId, uint8_t* data, uint8_t
       break;
     case PIPE_HUE_LIGHTS_HUE_LIGHT_COLOR_RX_ACK:
       break;
-    case PIPE_HUE_LIGHTS_HUE_NEXT_SCENE_RX_ACK:
-      break;
-    case PIPE_HUE_LIGHTS_HUE_SCENE_OPERATION_RX_ACK:
-      break;
-    case PIPE_HUE_LIGHTS_HUE_NEXT_LIGHT_RX_ACK:
+    case PIPE_HUE_LIGHTS_HUE_LIGHTS_COMMAND_RX_ACK:
       break;
     default:
       break;
