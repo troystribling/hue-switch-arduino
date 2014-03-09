@@ -1,8 +1,7 @@
 #include <SPI.h>
-#include "Adafruit_CC3000.h"
+#include "hue_lights_client.h"
 #include "ccspi.h"
 #include "log.h"
-#include "hue_lights_client.h"
 
 #define IDLE_TIMEOUT_MS  3000
 
@@ -12,10 +11,10 @@
 
 #define WLAN_SECURITY   WLAN_SEC_WPA2
 
-HueLightsClient::HueLightsClient(const __FlashStringHelper* _host,
-                                 const __FlashStringHelper* _site_root,
-                                 const char* _wlan_ssid,
-                                 const char* _wlan_password) :
+HueLightsClient::HueLightsClient(char*        _host,
+                                 char*        _site_root,
+                                 const char*  _wlan_ssid,
+                                 const char*  _wlan_password) :
   cc3000(Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ, ADAFRUIT_CC3000_VBAT, SPI_CLOCK_DIVIDER)),
   host(_host),
   site_root(_site_root) {
@@ -23,12 +22,16 @@ HueLightsClient::HueLightsClient(const __FlashStringHelper* _host,
 }
 
 bool HueLightsClient::connect() {
-  client = cc3000.connectTCP(ip, 80);
+  if (ipAddress != 0) {
+    client = cc3000.connectTCP(ipAddress, 80);
+  }
   return client.connected();
 }
 
 bool HueLightsClient::disconnect() {
-  cc3000.disconnect();
+  if (client.connected()) {
+    cc3000.disconnect();
+  }
   return client.connected();
 }
 
@@ -44,7 +47,7 @@ bool HueLightsClient::turnOffLight(uint8_t light) {
     client.fastrprint(F("\r\n"));
     client.println();
   } else {
-    ERROR(F("Connection failed"));
+    ERROR_LOG(F("Connection failed"));
     return false;
   }
 
@@ -58,16 +61,15 @@ bool HueLightsClient::turnOffLight(uint8_t light) {
     }
   }
   client.close();
-  return true
+  return true;
 }
 
 void HueLightsClient::init(const char* _wlan_ssid, const char* _wlan_password) {
   ipAddress = 0;
 
-  HALT_ON_ERROR(cc3000.begin(), F("Couldn't begin()! Check your wiring?"))
-  HALT_ON_ERROR(cc3000.connectToAP(_wlan_ssid, _wlan_password, WLAN_SECURITY), F("Connect Failed!"})
-  DBUG("Connected");
-  DBUG(F("Request DHCP"));
+  HALT_ON_ERROR(cc3000.begin(), F("Couldn't begin()! Check your wiring?"));
+  HALT_ON_ERROR(cc3000.connectToAP(_wlan_ssid, _wlan_password, WLAN_SECURITY), F("Connect Failed!"));
+  DBUG_LOG(F("Connected, Request DHCP"));
   while (!cc3000.checkDHCP()) {
     delay(100);
   }
@@ -76,7 +78,7 @@ void HueLightsClient::init(const char* _wlan_ssid, const char* _wlan_password) {
   }
   while (ipAddress == 0) {
     if (!cc3000.getHostByName(host, &ipAddress)) {
-      ERROR(F("Couldn't resolve!"));
+      ERROR_LOG(F("Couldn't resolve!"));
     }
     delay(500);
   }
@@ -85,7 +87,7 @@ void HueLightsClient::init(const char* _wlan_ssid, const char* _wlan_password) {
 bool HueLightsClient::displayConnectionDetails() {
   uint32_t ipAddress, netmask, gateway, dhcpserv, dnsserv;
   if(!cc3000.getIPAddress(&ipAddress, &netmask, &gateway, &dhcpserv, &dnsserv)) {
-    ERROR(F("Unable to retrieve the IP Address!\r\n"));
+    ERROR_LOG(F("Unable to retrieve the IP Address!\r\n"));
     return false;
   } else {
     Serial.print(F("\nIP Addr: ")); cc3000.printIPdotsRev(ipAddress);

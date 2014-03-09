@@ -8,6 +8,7 @@
 
 void setup(void) {
   Serial.begin(9600);
+  DBUG_FREE_MEMORY
 }
 
 void loop(void) {
