@@ -21,9 +21,9 @@ Peripheral peripheral(REQN_PIN, RDYN_PIN, EEPROM_OFFSET, MAX_BONDS);
 
 void clearBond() {
   if (digitalRead(CLEAR_BONDS_PIN) == HIGH) {
-    INFO(F("Clearing EEPROM bond"));
+    INFO_LOG(F("Clearing EEPROM bond"));
     peripheral.clearBondData();
-    INFO(F("Remove wire and reset"));
+    INFO_LOG(F("Remove wire and reset"));
     while(1){delay(1000);};
   }
 }
@@ -31,9 +31,9 @@ void clearBond() {
 void addBond() {
   if (digitalRead(ADD_BOND_PIN) == HIGH && addBondCount == ADD_BOND_PIN_COUNT) {
     if (peripheral.addBond()) {
-      INFO(F("Added bond. Remove wire"));
+      INFO_LOG(F("Added bond. Remove wire"));
     } else {
-      INFO(F("Failed to add bond. Remove wire"));
+      INFO_LOG(F("Failed to add bond. Remove wire"));
     }
     addBondCount = 0;
     updateAddBondCount = false;
@@ -53,8 +53,8 @@ void setup() {
   peripheral.begin();
   pinMode(CLEAR_BONDS_PIN, INPUT);
   pinMode(ADD_BOND_PIN, INPUT);
-  INFO(F("To delete the bond stored in EEPROM, connect pin 6 to 5v and reset."));
-  INFO(F("To add a bond connect pin 7 to 5v."));
+  INFO_LOG(F("To delete the bond stored in EEPROM, connect pin 6 to 5v and reset."));
+  INFO_LOG(F("To add a bond connect pin 7 to 5v."));
   clearBond();
 }
 

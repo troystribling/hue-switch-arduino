@@ -12,7 +12,7 @@ Peripheral::Peripheral(uint8_t _reqn, uint8_t _rdyn, uint16_t _eepromOffset, uin
 }
 
 void Peripheral::begin() {
-  INFO(F("Peripheral::begin"));
+  INFO_LOG(F("Peripheral::begin"));
   BlueCapBondedPeripheral::begin();
 }
 
