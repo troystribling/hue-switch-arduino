@@ -8,18 +8,20 @@ class HueLightsClient {
 public:
 
   HueLightsClient(char*       _host,
-                  char*       _site_root,
-                  const char* _wlan_ssid,
-                  const char* _wlan_password);
+                  char*       _site_root);
 
-  bool connected();
-  bool connect();
-  bool disconnect();
-  bool turnOffLight(uint8_t light);
+  bool lanConnect(const char*  _wlan_ssid, const char*  _wlan_password);
+  bool lanConnected();
+  bool lanDisconnect();
+
+  bool setLightOn(uint8_t light, bool on);
 
 private:
 
   void init(const char* _wlan_ssid, const char* _wlan_password);
+  bool siteConnected();
+  bool siteConnect();
+  bool siteClose();
   bool displayConnectionDetails();
 
 private:
