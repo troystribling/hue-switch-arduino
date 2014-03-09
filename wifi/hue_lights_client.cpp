@@ -4,6 +4,7 @@
 #include "log.h"
 #include "hue_lights_client.h"
 
+#define IDLE_TIMEOUT_MS  3000
 
 #define ADAFRUIT_CC3000_IRQ   3
 #define ADAFRUIT_CC3000_VBAT  5
@@ -18,10 +19,49 @@ HueLightsClient::HueLightsClient(const __FlashStringHelper* _host,
   cc3000(Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ, ADAFRUIT_CC3000_VBAT, SPI_CLOCK_DIVIDER)),
   host(_host),
   site_root(_site_root) {
-  init(_wlan_ssid, _wlan_password)
+  init(_wlan_ssid, _wlan_password);
 }
 
-HueLightsClient::init(const char* _wlan_ssid, const char* _wlan_password) {
+bool HueLightsClient::connect() {
+  client = cc3000.connectTCP(ip, 80);
+  return client.connected();
+}
+
+bool HueLightsClient::disconnect() {
+  cc3000.disconnect();
+  return client.connected();
+}
+
+bool HueLightsClient::turnOffLight(uint8_t light) {
+  if (client.connected()) {
+    client.fastrprint(F("PUT "));
+    client.fastrprint(site_root);
+    client.fastrprint(F(" HTTP/1.1\r\n"));
+    client.fastrprint(F("Host: ")); client.fastrprint(host); client.fastrprint(F("\r\n"));
+    client.fastrprint(F("Accept: application/json\r\n"));
+    client.fastrprint(F("Content-Length: 11\r\n\r\n"));
+    client.fastrprint(F("{\"on\":true}"));
+    client.fastrprint(F("\r\n"));
+    client.println();
+  } else {
+    ERROR(F("Connection failed"));
+    return false;
+  }
+
+  /* Read data until either the connection is closed, or the idle timeout is reached. */
+  unsigned long lastRead = millis();
+  while (client.connected() && (millis() - lastRead < IDLE_TIMEOUT_MS)) {
+    while (client.available()) {
+      char c = client.read();
+      Serial.print(c);
+      lastRead = millis();
+    }
+  }
+  client.close();
+  return true
+}
+
+void HueLightsClient::init(const char* _wlan_ssid, const char* _wlan_password) {
   ipAddress = 0;
 
   HALT_ON_ERROR(cc3000.begin(), F("Couldn't begin()! Check your wiring?"))
@@ -40,44 +80,9 @@ HueLightsClient::init(const char* _wlan_ssid, const char* _wlan_password) {
     }
     delay(500);
   }
-  client = cc3000.connectTCP(ip, 80);
-  if (www.connected()) {
-    www.fastrprint(F("PUT "));
-    www.fastrprint(WEBPAGE);
-    www.fastrprint(F(" HTTP/1.1\r\n"));
-    www.fastrprint(F("Host: ")); www.fastrprint(WEBSITE); www.fastrprint(F("\r\n"));
-    www.fastrprint(F("Accept: application/json\r\n"));
-    www.fastrprint(F("Content-Length: 11\r\n\r\n"));
-    www.fastrprint(F("{\"on\":true}"));
-    www.fastrprint(F("\r\n"));
-    www.println();
-  } else {
-    Serial.println(F("Connection failed"));
-    return;
-  }
-
-  Serial.println(F("-------------------------------------"));
-
-  /* Read data until either the connection is closed, or the idle timeout is reached. */
-  unsigned long lastRead = millis();
-  while (www.connected() && (millis() - lastRead < IDLE_TIMEOUT_MS)) {
-    while (www.available()) {
-      char c = www.read();
-      Serial.print(c);
-      lastRead = millis();
-    }
-  }
-  www.close();
-  Serial.println(F("-------------------------------------"));
-
-  /* You need to make sure to clean up after yourself or the CC3000 can freak out */
-  /* the next time your try to connect ... */
-  Serial.println(F("\n\nDisconnecting"));
-  cc3000.disconnect();
-
 }
 
-bool displayConnectionDetails(void) {
+bool HueLightsClient::displayConnectionDetails() {
   uint32_t ipAddress, netmask, gateway, dhcpserv, dnsserv;
   if(!cc3000.getIPAddress(&ipAddress, &netmask, &gateway, &dhcpserv, &dnsserv)) {
     ERROR(F("Unable to retrieve the IP Address!\r\n"));

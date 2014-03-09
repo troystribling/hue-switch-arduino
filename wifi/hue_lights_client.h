@@ -7,13 +7,18 @@ public:
 
   HueLightsClient(const __FlashStringHelper* _host,
                   const __FlashStringHelper* _site_root,
-                  const __FlashStringHelper* _wlan_ssid,
-                  const __FlashStringHelper* _wlan_password);
+                  const char* _wlan_ssid,
+                  const char* _wlan_password);
+
+  bool connected();
+  bool connect();
+  bool disconnect();
+  bool turnOffLight(uint8_t light);
 
 private:
 
-  init(const __FlashStringHelper* _wlan_ssid, const __FlashStringHelper* _wlan_password);
-  void printIpAddressAsString(ip);
+  void init(const char* _wlan_ssid, const char* _wlan_password);
+  bool displayConnectionDetails();
 
 private:
 
