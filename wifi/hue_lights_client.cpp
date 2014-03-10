@@ -1,4 +1,5 @@
 #include <SPI.h>
+#include <EEPROM.h>
 #include "hue_lights_client.h"
 #include "ccspi.h"
 #include "log.h"
