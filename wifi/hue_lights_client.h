@@ -26,7 +26,7 @@ private:
 
 private:
 
-  uint32_t                    ipAddress;
+  uint32_t                    serverIpAddress;
   char*                       host;
   char*                       site_root;
   Adafruit_CC3000             cc3000;

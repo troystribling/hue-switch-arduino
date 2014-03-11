@@ -19,7 +19,7 @@ HueLightsClient::HueLightsClient(char*        _host,
   site_root(_site_root) {}
 
 bool HueLightsClient::lanConnect(const char*  _wlan_ssid, const char*  _wlan_password) {
-  ipAddress = 0;
+  serverIpAddress = 0;
   HALT_ON_ERROR(cc3000.begin(), F("Couldn't begin()! Check your wiring?"));
   HALT_ON_ERROR(cc3000.connectToAP(_wlan_ssid, _wlan_password, WLAN_SECURITY), F("Connect Failed!"));
   DBUG_LOG(F("\nConnected to LAN, Doing DHCP Request"));
@@ -29,12 +29,14 @@ bool HueLightsClient::lanConnect(const char*  _wlan_ssid, const char*  _wlan_pas
   while (!displayConnectionDetails()) {
     delay(100);
   }
-  while (ipAddress == 0) {
-    if (!cc3000.getHostByName(host, &ipAddress)) {
+  while (serverIpAddress == 0) {
+    if (!cc3000.getHostByName(host, &serverIpAddress)) {
       ERROR_LOG(F("Couldn't resolve!"));
     }
     delay(500);
   }
+  DBUG_LOG(F("Server IP Resolved:"));
+  DBUG_LOG(serverIpAddress, HEX);
 }
 
 bool HueLightsClient::lanConnected() {
@@ -79,11 +81,15 @@ bool HueLightsClient::setLightOn(uint8_t light, bool on) {
 
 // private
 bool HueLightsClient::siteConnect() {
-  if (ipAddress != 0) {
-    client = cc3000.connectTCP(ipAddress, 80);
+  if (serverIpAddress != 0) {
+    DBUG_LOG(F("Attempting connect to server:"));
+    DBUG_LOG(serverIpAddress, HEX);
+    client = cc3000.connectTCP(serverIAddress, 80);
     return client.connected();
   } else {
-    return false;
+    ERROR_LOG(F("Cannot connect to server becuase server IP is not available:"));
+    ERROR_LOG(serverIpAddress, HEX);
+  return false;
   }
 }
 
@@ -96,12 +102,12 @@ bool HueLightsClient::siteClose() {
 }
 
 bool HueLightsClient::displayConnectionDetails() {
-  uint32_t ipAddress, netmask, gateway, dhcpserv, dnsserv;
-  if(!cc3000.getIPAddress(&ipAddress, &netmask, &gateway, &dhcpserv, &dnsserv)) {
+  uint32_t address, netmask, gateway, dhcpserv, dnsserv;
+  if(!cc3000.getIPAddress(&address, &netmask, &gateway, &dhcpserv, &dnsserv)) {
     ERROR_LOG(F("Unable to retrieve the IP Address!\r\n"));
     return false;
   } else {
-    Serial.print(F("\nIP Addr: ")); cc3000.printIPdotsRev(ipAddress);
+    Serial.print(F("\nIP Addr: ")); cc3000.printIPdotsRev(address);
     Serial.print(F("\nNetmask: ")); cc3000.printIPdotsRev(netmask);
     Serial.print(F("\nGateway: ")); cc3000.printIPdotsRev(gateway);
     Serial.print(F("\nDHCPsrv: ")); cc3000.printIPdotsRev(dhcpserv);

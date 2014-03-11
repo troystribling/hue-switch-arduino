@@ -162,11 +162,12 @@ void SerialUI::showMenu() {
 void SerialUI::processLightOn(char* data, uint8_t size) {
   DBUG_LOG(F("SerialUI::processLightOn"));
   uint8_t lightID = (uint8_t)atoi(&data[0]);
-  uint8_t lightOnStatus = (uint8_t)atoi(&data[2]);
+  bool lightOnStatus = (bool)atoi(&data[2]);
   DBUG_LOG(F("lightID:"));
   DBUG_LOG(lightID, DEC);
   DBUG_LOG(F("lightOnStatus:"));
   DBUG_LOG(lightOnStatus, DEC);
+  client.setLightOn(lightID, lightOnStatus);
 }
 
 void SerialUI::processCommand(char* data, uint8_t size) {
