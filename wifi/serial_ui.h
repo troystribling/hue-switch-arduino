@@ -9,7 +9,7 @@ class SerialUI {
 
 public:
 
-  SerialUI(HueLightsClient _client) : client(_client), currentCommandID(0), currentBufferIndex(0){};
+  SerialUI(HueLightsClient* _client) : client(_client), currentCommandID(0), currentBufferIndex(0){};
   void showMainMenu();
   void processSerialInput();
 
@@ -34,7 +34,7 @@ private:
 
 private:
 
-  HueLightsClient client;
+  HueLightsClient* client;
   uint8_t currentCommandID;
   uint8_t currentBufferIndex;
   char messageBuffer[MAX_MESSAGE_SIZE];

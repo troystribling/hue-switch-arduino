@@ -167,7 +167,7 @@ void SerialUI::processLightOn(char* data, uint8_t size) {
   DBUG_LOG(lightID, DEC);
   DBUG_LOG(F("lightOnStatus:"));
   DBUG_LOG(lightOnStatus, DEC);
-  client.setLightOn(lightID, lightOnStatus);
+  client->setLightOn(lightID, lightOnStatus);
 }
 
 void SerialUI::processCommand(char* data, uint8_t size) {

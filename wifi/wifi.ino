@@ -10,7 +10,7 @@ HueLightsClient client(WEB_HOST, WEB_ROOT);
 
 #ifdef SERIAL_UI
   #include "serial_ui.h"
-  SerialUI ui(client);
+  SerialUI ui(&client);
 #endif
 
 void setup() {

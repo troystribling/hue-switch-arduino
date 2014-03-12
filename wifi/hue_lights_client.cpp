@@ -58,8 +58,8 @@ bool HueLightsClient::setLightOn(uint8_t light, bool on) {
     client.fastrprint(F(" HTTP/1.1\r\n"));
     client.fastrprint(F("Host: ")); client.fastrprint(host); client.fastrprint(F("\r\n"));
     client.fastrprint(F("Accept: application/json\r\n"));
-    client.fastrprint(F("Content-Length: 11\r\n\r\n"));
-    client.fastrprint(F("{\"on\":true}"));
+    client.fastrprint(F("Content-Length: 12\r\n\r\n"));
+    client.fastrprint(F("{\"on\":false}"));
     client.fastrprint(F("\r\n"));
     client.println();
   } else {
@@ -84,7 +84,7 @@ bool HueLightsClient::siteConnect() {
   if (serverIpAddress != 0) {
     DBUG_LOG(F("Attempting connect to server:"));
     DBUG_LOG(serverIpAddress, HEX);
-    client = cc3000.connectTCP(serverIAddress, 80);
+    client = cc3000.connectTCP(serverIpAddress, 80);
     return client.connected();
   } else {
     ERROR_LOG(F("Cannot connect to server becuase server IP is not available:"));
