@@ -67,7 +67,7 @@ void SerialUI::processSerialInput() {
 }
 
 void SerialUI::showSetLightOnMenu() {
-  MENU("\nSet Light On: LightId&OnState");
+  MENU("\nSet Light On: LightId&OnState-");
 }
 
 void SerialUI::showSetAllLightsOnMenu() {
