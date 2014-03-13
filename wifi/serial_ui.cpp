@@ -105,8 +105,6 @@ void SerialUI::showSetLightColorenu() {
 }
 
 void SerialUI::showMenu() {
-  DBUG_LOG(F("SerialUI::showMenu"));
-  DBUG_LOG(currentCommandID, DEC);
   switch (currentCommandID) {
       case MAIN_MENU_CMD:
         showMainMenu();
@@ -171,8 +169,6 @@ void SerialUI::processLightOn(char* data, uint8_t size) {
 }
 
 void SerialUI::processCommand(char* data, uint8_t size) {
-  DBUG_LOG(F("SerialUI::processCommand"));
-  DBUG_LOG(currentCommandID, DEC);
   switch (currentCommandID) {
       case LIGHT_ON_CMD:
         processLightOn(data, size);
@@ -206,10 +202,12 @@ void SerialUI::processCommand(char* data, uint8_t size) {
       case SHOW_SCENES:
         break;
       case GET_LIGHT_COUNT:
+        client->getLightCount();
         break;
       default:
         ERROR_LOG(F("(SerialUI::processCommand) Command ID is invalid:"));
         ERROR_LOG(currentCommandID, DEC);
         break;
   }
+  delay(1000);
 }

@@ -15,6 +15,7 @@ public:
   bool lanDisconnect();
 
   bool setLightOn(uint8_t light, bool on);
+  bool getLightCount();
 
 private:
 
@@ -24,7 +25,7 @@ private:
   bool siteClose();
   bool displayConnectionDetails();
   bool httpRequest(const __FlashStringHelper* method, char* url, char* headers, char* body);
-  bool readHTTPResponse();
+  uint16_t readHTTPResponseStatus();
 
 private:
 
