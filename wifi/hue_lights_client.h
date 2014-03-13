@@ -23,6 +23,8 @@ private:
   bool siteConnect();
   bool siteClose();
   bool displayConnectionDetails();
+  bool httpRequest(const __FlashStringHelper* method, char* url, char* headers, char* body);
+  bool readHTTPResponse();
 
 private:
 

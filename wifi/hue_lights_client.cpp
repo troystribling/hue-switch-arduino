@@ -22,7 +22,8 @@ bool HueLightsClient::lanConnect(const char*  _wlan_ssid, const char*  _wlan_pas
   serverIpAddress = 0;
   HALT_ON_ERROR(cc3000.begin(), F("Couldn't begin()! Check your wiring?"));
   HALT_ON_ERROR(cc3000.connectToAP(_wlan_ssid, _wlan_password, WLAN_SECURITY), F("Connect Failed!"));
-  DBUG_LOG(F("\nConnected to LAN, Doing DHCP Request"));
+  DBUG_OUT("\n");
+  DBUG_LOG(F("Connected to LAN, Doing DHCP Request"));
   while (!cc3000.checkDHCP()) {
     delay(100);
   }
@@ -49,34 +50,6 @@ bool HueLightsClient::lanDisconnect() {
   } else {
     return false;
   }
-}
-
-bool HueLightsClient::setLightOn(uint8_t light, bool on) {
-  if (siteConnect()) {
-    client.fastrprint(F("PUT "));
-    client.fastrprint(site_root);
-    client.fastrprint(F(" HTTP/1.1\r\n"));
-    client.fastrprint(F("Host: ")); client.fastrprint(host); client.fastrprint(F("\r\n"));
-    client.fastrprint(F("Accept: application/json\r\n"));
-    client.fastrprint(F("Content-Length: 12\r\n\r\n"));
-    client.fastrprint(F("{\"on\":false}"));
-    client.fastrprint(F("\r\n"));
-    client.println();
-  } else {
-    ERROR_LOG(F("Connection failed"));
-    return false;
-  }
-
-  /* Read data until either the connection is closed, or the idle timeout is reached. */
-  unsigned long lastRead = millis();
-  while (client.connected() && (millis() - lastRead < IDLE_TIMEOUT_MS)) {
-    while (client.available()) {
-      char c = client.read();
-      Serial.print(c);
-      lastRead = millis();
-    }
-  }
-  return siteClose();
 }
 
 // private
@@ -115,4 +88,45 @@ bool HueLightsClient::displayConnectionDetails() {
     Serial.println();
     return true;
   }
+}
+
+bool HueLightsClient::httpRequest(const __FlashStringHelper* method, char* url, char* headers, char* body) {
+  if (siteConnect()) {
+    client.fastrprint(method);
+    client.fastrprint(url);
+    client.fastrprint(F(" HTTP/1.1\r\n"));
+    client.fastrprint(F("Host: ")); client.fastrprint(host); client.fastrprint(F("\r\n"));
+    if (headers) {
+      client.fastrprint(headers);
+      client.fastrprint(F("\r\n"));
+    }
+    if (body) {
+      client.fastrprint(body);
+    }
+    client.fastrprint(F("\r\n"));
+    client.println();
+  } else {
+    ERROR_LOG(F("Connection failed"));
+    return false;
+  }
+}
+
+bool HueLightsClient::readHTTPResponse() {
+  unsigned long lastRead = millis();
+  DBUG_LOG(F("Start of Response"));
+  while (client.connected() && (millis() - lastRead < IDLE_TIMEOUT_MS)) {
+    while (client.available()) {
+      char c = client.read();
+      DBUG_OUT(c);
+      lastRead = millis();
+    }
+  }
+  DBUG_OUT("\n");
+  DBUG_LOG(F("End of Response"));
+  return siteClose();
+}
+
+bool HueLightsClient::setLightOn(uint8_t light, bool on) {
+  httpRequest(F("PUT "), "/api/6157582025/lights/1/state", "Accept: application/json\r\nContent-Length: 12\r\n", "{\"on\":false}");
+  return readHTTPResponse();
 }
