@@ -124,6 +124,33 @@ uint16_t HueLightsClient::readHTTPResponseStatus() {
       if (count >= 9 && count <= 11) {
         status_buffer[count - 9] = c;
       }
+      if (count >= 11) {
+        break;
+      }
+      count++;
+      DBUG_OUT(c);
+      lastRead = millis();
+    }
+    if (count >= 11) {
+      break;
+    }
+  }
+  DBUG_LOG(F("Character Count:"));
+  DBUG_LOG(count);
+  DBUG_LOG(F("Status:"));
+  DBUG_LOG(status_buffer);
+  return atoi(status_buffer);
+}
+
+uint16_t HueLightsClient::readHTTPLightsResponse() {
+  DBUG_LOG(F("HTTP Response"));
+  unsigned long lastRead = millis();
+  uint16_t count = 0;
+  char status_buffer[4];
+  status_buffer[3] = '\0';
+  while (client.connected() && (millis() - lastRead < IDLE_TIMEOUT_MS)) {
+    while (client.available()) {
+      char c = client.read();
       count++;
       DBUG_OUT(c);
       lastRead = millis();

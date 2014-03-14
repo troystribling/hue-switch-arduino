@@ -26,6 +26,7 @@ private:
   bool displayConnectionDetails();
   bool httpRequest(const __FlashStringHelper* method, char* url, char* headers, char* body);
   uint16_t readHTTPResponseStatus();
+  uint16_t readHTTPLightsResponse();
 
 private:
 
