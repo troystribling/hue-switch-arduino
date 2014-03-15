@@ -29,7 +29,8 @@ private:
   void showSetLightColorenu();
   void showMenu();
 
-  void processLightOn(char* data, uint8_t size);
+  void processSetLightOn(char* data, uint8_t size);
+  void processSetLightColor(char* data, uint8_t size);
   void processCommand(char* data, uint8_t size);
 
 private:

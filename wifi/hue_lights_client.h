@@ -8,13 +8,16 @@ class HueLightsClient {
 public:
 
   HueLightsClient(char*       _host,
-                  char*       _site_root);
+                  char*       _siteRoot);
 
-  bool lanConnect(const char*  _wlan_ssid, const char*  _wlan_password);
+  // network
+  bool lanConnect(const char*  _wlanSSID, const char*  _wlanPassword);
   bool lanConnected();
   bool lanDisconnect();
 
-  bool setLightOn(uint8_t light, bool on);
+  //commands
+  bool setLightOn(uint8_t lightID, bool on);
+  bool setLightColor(uint8_t lightID, uint8_t saturation, uint8_t brightness, uint16_t hue);
   bool getLightCount();
 
 private:
@@ -24,7 +27,7 @@ private:
   bool siteConnect();
   bool siteClose();
   bool displayConnectionDetails();
-  bool httpRequest(const __FlashStringHelper* method, char* url, char* headers, char* body);
+  bool httpRequest(const __FlashStringHelper* method, String* url, String* headers, String* body);
   uint16_t readHTTPResponseStatus();
   uint8_t readHTTPLightsResponse();
 
@@ -32,7 +35,7 @@ private:
 
   uint32_t                    serverIpAddress;
   char*                       host;
-  char*                       site_root;
+  char*                       siteRoot;
   Adafruit_CC3000             cc3000;
   Adafruit_CC3000_Client      client;
 

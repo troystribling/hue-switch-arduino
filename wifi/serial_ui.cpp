@@ -74,9 +74,6 @@ void SerialUI::showSetAllLightsOnMenu() {
   MENU("\nSet All Lights On: OnState");
 }
 
-void SerialUI::showSetLightColorMenu() {
-}
-
 void SerialUI::showAddSceneMenu() {
 }
 
@@ -101,7 +98,8 @@ void SerialUI::showSetCurrentSceneIDMenu() {
 void SerialUI::showGetLightColorMenu() {
 }
 
-void SerialUI::showSetLightColorenu() {
+void SerialUI::showSetLightColorMenu() {
+  MENU("\nSet Light Color: LightId&Brightness&Saturation&Hue-");
 }
 
 void SerialUI::showMenu() {
@@ -140,7 +138,7 @@ void SerialUI::showMenu() {
         showGetLightColorMenu();
         break;
       case SET_LIGHT_COLOR_CMD:
-        showSetLightColorenu();
+        showSetLightColorMenu();
         break;
       case NEXT_SCENE:
       case NEXT_LIGHT:
@@ -157,7 +155,7 @@ void SerialUI::showMenu() {
 }
 
 
-void SerialUI::processLightOn(char* data, uint8_t size) {
+void SerialUI::processSetLightOn(char* data, uint8_t size) {
   DBUG_LOG(F("SerialUI::processLightOn"));
   uint8_t lightID = (uint8_t)atoi(&data[0]);
   bool lightOnStatus = (bool)atoi(&data[2]);
@@ -168,10 +166,27 @@ void SerialUI::processLightOn(char* data, uint8_t size) {
   client->setLightOn(lightID, lightOnStatus);
 }
 
+void SerialUI::processSetLightColor(char* data, uint8_t size) {
+  DBUG_LOG(F("SerialUI::processSetLightColor"));
+  uint8_t lightID = (uint8_t)atoi(&data[0]);
+  uint8_t brightness = (uint8_t)atoi(&data[2]);
+  uint8_t saturation = (uint8_t)atoi(&data[4]);
+  uint16_t hue = (uint16_t)atoi(&data[6]);
+  DBUG_LOG(F("lightID:"));
+  DBUG_LOG(lightID, DEC);
+  DBUG_LOG(F("brightness:"));
+  DBUG_LOG(brightness, DEC);
+  DBUG_LOG(F("saturation:"));
+  DBUG_LOG(saturation, DEC);
+  DBUG_LOG(F("hue:"));
+  DBUG_LOG(hue, DEC);
+  client->setLightColor(lightID, brightness, saturation, hue);
+}
+
 void SerialUI::processCommand(char* data, uint8_t size) {
   switch (currentCommandID) {
       case LIGHT_ON_CMD:
-        processLightOn(data, size);
+        processSetLightOn(data, size);
         break;
       case ALL_LIGHTS_ON_CMD:
         break;
@@ -198,6 +213,7 @@ void SerialUI::processCommand(char* data, uint8_t size) {
       case GET_LIGHT_COLOR_CMD:
         break;
       case SET_LIGHT_COLOR_CMD:
+        processSetLightColor(data, size);
         break;
       case SHOW_SCENES:
         break;
