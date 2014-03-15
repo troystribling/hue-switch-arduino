@@ -146,10 +146,14 @@ void SerialUI::showMenu() {
       case SHOW_SCENES:
       case GET_LIGHT_COUNT:
         processCommand(NULL, 0);
+        currentCommandID = 0;
+        showMainMenu();
         break;
       default:
         ERROR_LOG(F("(SerialUI::showMenu) Command ID is invalid:"));
         ERROR_LOG(currentCommandID, DEC);
+        currentCommandID = 0;
+        showMainMenu();
         break;
   }
 }
@@ -223,7 +227,8 @@ void SerialUI::processCommand(char* data, uint8_t size) {
       default:
         ERROR_LOG(F("(SerialUI::processCommand) Command ID is invalid:"));
         ERROR_LOG(currentCommandID, DEC);
+        currentCommandID = 0;
+        showMainMenu();
         break;
   }
-  delay(1000);
 }

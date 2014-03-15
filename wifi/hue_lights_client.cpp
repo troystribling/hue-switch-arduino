@@ -13,7 +13,6 @@
 #define WLAN_SECURITY               WLAN_SEC_WPA2
 #define HTTP_HEADERS                "Accept: application/json\r\nContent-Length: "
 #define MAX_HTTP_CONNECT_TRIES      5
-#define MAX_HTTP_READ_TRIES         5
 
 HueLightsClient::HueLightsClient(char*        _host,
                                  char*        _siteRoot) :
@@ -59,6 +58,7 @@ bool HueLightsClient::lanDisconnect() {
 // commands
 bool HueLightsClient::setLightOn(uint8_t lightID, bool on) {
   bool status = false;
+  uint8_t count = 0;
   String url = String(siteRoot);
   url += String("/lights/");
   url += String(lightID);
@@ -72,21 +72,24 @@ bool HueLightsClient::setLightOn(uint8_t lightID, bool on) {
   String headers = String(HTTP_HEADERS);
   headers += String(body.length());
   headers += String("\r\n");
-  if (httpRequest(F("PUT"), &url, &headers, &body)) {
-    uint16_t httpStatus = readHTTPResponseStatus();
-    if (httpStatus == 200) {
-      DBUG_LOG(F("Set light on successful"));
-      status = true;
-    } else {
-      ERROR_LOG(F("Set light on failed"));
+  while (count < MAX_HTTP_CONNECT_TRIES && !status) {
+    if (httpRequest(F("PUT"), &url, &headers, &body)) {
+      uint16_t httpStatus = readHTTPResponseStatus();
+      if (httpStatus == 200) {
+        DBUG_LOG(F("Set light on successful"));
+        status = true;
+      } else {
+        ERROR_LOG(F("Set light on failed"));
+      }
+      siteClose();
     }
-    siteClose();
   }
   return status;
 }
 
 bool HueLightsClient::setLightColor(uint8_t lightID, uint8_t saturation, uint8_t brightness, uint16_t hue) {
   bool status = false;
+  uint8_t count = 0;
   String url = String(siteRoot);
   url += String("/lights/");
   url += String(lightID);
@@ -101,34 +104,41 @@ bool HueLightsClient::setLightColor(uint8_t lightID, uint8_t saturation, uint8_t
   String headers = String(HTTP_HEADERS);
   headers += String(body.length());
   headers += String("\r\n");
-  if (httpRequest(F("PUT"), &url, &headers, &body)) {
-    uint16_t httpStatus = readHTTPResponseStatus();
-    if (httpStatus == 200) {
-      DBUG_LOG(F("Set light color successful"));
-      status = true;
-    } else {
-      ERROR_LOG(F("Set light color failed"));
+  while (count < MAX_HTTP_CONNECT_TRIES && !status) {
+    if (httpRequest(F("PUT"), &url, &headers, &body)) {
+      uint16_t httpStatus = readHTTPResponseStatus();
+      if (httpStatus == 200) {
+        DBUG_LOG(F("Set light color successful"));
+        status = true;
+      } else {
+        ERROR_LOG(F("Set light color failed"));
+      }
+      siteClose();
     }
-    siteClose();
   }
   return status;
 }
 
 bool HueLightsClient::getLightCount() {
   bool status = false;
+  uint8_t count = 0;
   String url = String(siteRoot);
   url += String("/lights");
-  if (httpRequest(F("GET"), &url, NULL, NULL)) {
-    uint16_t httpStatus = readHTTPResponseStatus();
-    if (httpStatus == 200) {
-      uint8_t light_count = readHTTPLightsResponse();
-      DBUG_LOG(F("Light count:"));
-      DBUG_LOG(light_count, DEC);
-      status = true;
-    } else {
-      ERROR_LOG(F("Get light count failed"));
+  while (count < MAX_HTTP_CONNECT_TRIES && !status) {
+    if (httpRequest(F("GET"), &url, NULL, NULL)) {
+      uint16_t httpStatus = readHTTPResponseStatus();
+      if (httpStatus == 200) {
+        uint8_t lightCount = readHTTPLightsResponse();
+        if (lightCount > 0) {
+          DBUG_LOG(F("Light count:"));
+          DBUG_LOG(lightCount, DEC);
+          status = true;
+        }
+      } else {
+        ERROR_LOG(F("Get light count failed"));
+      }
+      siteClose();
     }
-    siteClose();
   }
   return status;
 }
@@ -179,7 +189,6 @@ bool HueLightsClient::httpRequest(const __FlashStringHelper* method, String* url
     if (siteConnect()) {
       char urlBuffer[url->length()+1];
       url->toCharArray(urlBuffer, url->length()+1);
-      urlBuffer[url->length()] = '\0';
       DBUG_LOG(F("HTTP URL:"));
       DBUG_LOG(urlBuffer);
       DBUG_LOG(url->length(), DEC);
@@ -190,7 +199,6 @@ bool HueLightsClient::httpRequest(const __FlashStringHelper* method, String* url
       if (headers) {
         char headersBuffer[headers->length()+1];
         headers->toCharArray(headersBuffer, headers->length()+1);
-        headersBuffer[headers->length()] = '\0';
         DBUG_LOG(F("HTTP HEADERS:"));
         DBUG_LOG(headersBuffer);
         DBUG_LOG(headers->length(), DEC);
@@ -200,7 +208,6 @@ bool HueLightsClient::httpRequest(const __FlashStringHelper* method, String* url
       if (body) {
         char bodyBuffer[body->length()+1];
         body->toCharArray(bodyBuffer, body->length()+1);
-        bodyBuffer[body->length()] = '\0';
         DBUG_LOG(F("HTTP BODY:"));
         DBUG_LOG(bodyBuffer);
         DBUG_LOG(body->length(), DEC);
@@ -220,33 +227,29 @@ bool HueLightsClient::httpRequest(const __FlashStringHelper* method, String* url
 
 uint16_t HueLightsClient::readHTTPResponseStatus() {
   unsigned long lastRead = millis();
-  uint16_t msgCount = 0, count = 0, httpStatus = 0;
+  uint16_t msgCount = 0, httpStatus = 0;
   char statusBuffer[4];
   statusBuffer[3] = '\0';
-  // while (count < MAX_HTTP_READ_TRIES && httpStatus != 200) {
-    while (client.connected() && (millis() - lastRead < IDLE_TIMEOUT_MS)) {
-      while (client.available()) {
-        char c = client.read();
-        DBUG_OUT(c);
-        // get status
-        if (msgCount >= 9 && msgCount <= 11) {
-          statusBuffer[msgCount - 9] = c;
-        }
-        if (msgCount >= 11) {
-          break;
-        }
-        msgCount++;
-        msgCount = millis();
+  while (client.connected() && (millis() - lastRead < IDLE_TIMEOUT_MS)) {
+    while (client.available()) {
+      char c = client.read();
+      // get status
+      if (msgCount >= 9 && msgCount <= 11) {
+        statusBuffer[msgCount - 9] = c;
       }
       if (msgCount >= 11) {
         break;
       }
+      msgCount++;
+      lastRead = millis();
     }
-    count++;
-    httpStatus = atoi(statusBuffer);
-    DBUG_LOG(F("HTTP status:"));
-    DBUG_LOG(httpStatus);
-  // }
+    if (msgCount >= 11) {
+      break;
+    }
+  }
+  httpStatus = atoi(statusBuffer);
+  DBUG_LOG(F("HTTP Status:"));
+  DBUG_LOG(httpStatus);
   return httpStatus;
 }
 
@@ -256,7 +259,6 @@ uint8_t HueLightsClient::readHTTPLightsResponse() {
   while (client.connected() && (millis() - lastRead < IDLE_TIMEOUT_MS)) {
     while (client.available()) {
       char c = client.read();
-      DBUG_OUT(c);
       if (c == '{') {
         level++;
       } else if (c == '}') {
