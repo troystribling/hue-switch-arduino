@@ -112,7 +112,6 @@ bool HueLightsClient::httpRequest(const __FlashStringHelper* method, char* url, 
 }
 
 uint16_t HueLightsClient::readHTTPResponseStatus() {
-  DBUG_LOG(F("HTTP Response"));
   unsigned long lastRead = millis();
   uint16_t count = 0;
   char status_buffer[4];
@@ -128,39 +127,35 @@ uint16_t HueLightsClient::readHTTPResponseStatus() {
         break;
       }
       count++;
-      DBUG_OUT(c);
       lastRead = millis();
     }
     if (count >= 11) {
       break;
     }
   }
-  DBUG_LOG(F("Character Count:"));
-  DBUG_LOG(count);
-  DBUG_LOG(F("Status:"));
-  DBUG_LOG(status_buffer);
   return atoi(status_buffer);
 }
 
-uint16_t HueLightsClient::readHTTPLightsResponse() {
-  DBUG_LOG(F("HTTP Response"));
+uint8_t HueLightsClient::readHTTPLightsResponse() {
   unsigned long lastRead = millis();
-  uint16_t count = 0;
-  char status_buffer[4];
-  status_buffer[3] = '\0';
+  uint8_t count = 0, level = 0, quote = 0;
   while (client.connected() && (millis() - lastRead < IDLE_TIMEOUT_MS)) {
     while (client.available()) {
       char c = client.read();
-      count++;
-      DBUG_OUT(c);
+      if (c == '{') {
+        level++;
+      } else if (c == '}') {
+        level--;
+      } else if (c == '"' && quote == 0 && level == 1) {
+        quote = 1;
+      } else if (c == '"' && quote == 1 && level == 1) {
+        count++;
+        quote = 0;
+      }
       lastRead = millis();
     }
   }
-  DBUG_LOG(F("Character Count:"));
-  DBUG_LOG(count);
-  DBUG_LOG(F("Status:"));
-  DBUG_LOG(status_buffer);
-  return atoi(status_buffer);
+  return count;
 }
 
 bool HueLightsClient::setLightOn(uint8_t light, bool on) {
@@ -168,7 +163,10 @@ bool HueLightsClient::setLightOn(uint8_t light, bool on) {
   httpRequest(F("PUT"), "/api/6157582025/lights/1/state", "Accept: application/json\r\nContent-Length: 11\r\n", "{\"on\":true}");
   uint16_t httpStatus = readHTTPResponseStatus();
   if (httpStatus == 200) {
+    DBUG_LOG(F("Set light on successful"));
     status = true;
+  } else {
+    ERROR_LOG(F("Set light on failed"));
   }
   return status;
 }
@@ -178,7 +176,12 @@ bool HueLightsClient::getLightCount() {
   httpRequest(F("GET"), "/api/6157582025/lights", NULL, NULL);
   uint16_t httpStatus = readHTTPResponseStatus();
   if (httpStatus == 200) {
+    uint8_t light_count = readHTTPLightsResponse();
+    DBUG_LOG(F("Light count:"));
+    DBUG_LOG(light_count, DEC);
     status = true;
+  } else {
+    ERROR_LOG(F("Get light count failed"));
   }
   return status;
 }
