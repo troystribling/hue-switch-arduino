@@ -1,5 +1,4 @@
 #include <SPI.h>
-#include <EEPROM.h>
 #include "hue_lights_client.h"
 #include "ccspi.h"
 #include "log.h"
@@ -18,7 +17,9 @@ HueLightsClient::HueLightsClient(char*        _host,
                                  char*        _siteRoot) :
   cc3000(Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ, ADAFRUIT_CC3000_VBAT, SPI_CLOCK_DIVIDER)),
   host(_host),
-  siteRoot(_siteRoot) {}
+  siteRoot(_siteRoot),
+  lightsEEPROM(EEPROMObject<NumberOfLightsEEPROM>(NUMBER_OF_LIGHTS_EEPROM_OFFSET, MAX_NUMBER_OF_LIGHTS_EEPROM)),
+  scenesEEPROM(EEPROMObject<HueLightsSceneEEPROM>(HUE_LIGHTS_SCENES_OFFSET, HUE_LIGHTS_MAX_SCENES)) {}
 
 // network
 bool HueLightsClient::lanConnect(const char*  _wlanSSID, const char*  _wlanPassword) {
@@ -119,7 +120,7 @@ bool HueLightsClient::setLightColor(uint8_t lightID, uint8_t saturation, uint8_t
   return status;
 }
 
-bool HueLightsClient::getLightCount() {
+bool HueLightsClient::setLightCount() {
   bool status = false;
   uint8_t count = 0;
   String url = String(siteRoot);
@@ -132,6 +133,8 @@ bool HueLightsClient::getLightCount() {
         if (lightCount > 0) {
           DBUG_LOG(F("Light count:"));
           DBUG_LOG(lightCount, DEC);
+          NumberOfLightsEEPROM count = {0x01, lightCount};
+          lightsEEPROM.update(0, count);
           status = true;
         }
       } else {
@@ -141,6 +144,14 @@ bool HueLightsClient::getLightCount() {
     }
   }
   return status;
+}
+
+uint8_t HueLightsClient::getLightCount() {
+  NumberOfLightsEEPROM count;
+  uint16_t bytes = lightsEEPROM.read(0, count);
+  DBUG_LOG(F("Light count:"));
+  DBUG_LOG(count.numberOfLights);
+  return count.numberOfLights;
 }
 
 // private

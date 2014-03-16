@@ -17,6 +17,7 @@ void setup() {
   Serial.begin(9600);
   DBUG_FREE_MEMORY;
   client.lanConnect(WLAN_SSID, WLAN_PASS);
+  client.setLightCount();
 #ifdef SERIAL_UI
   ui.showMainMenu();
 #endif

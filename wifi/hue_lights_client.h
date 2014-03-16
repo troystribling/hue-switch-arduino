@@ -2,7 +2,28 @@
 #define _HUE_LIGHTS_CLIENT_H_
 
 #include "Adafruit_CC3000.h"
+#include "eeprom_objects.h"
 
+// eeprom storage objects
+#define NUMBER_OF_LIGHTS_EEPROM_OFFSET  0
+#define MAX_NUMBER_OF_LIGHTS_EEPROM     0
+struct NumberOfLightsEEPROM {
+  uint8_t status;
+  uint8_t numberOfLights;
+};
+
+#define HUE_LIGHTS_SCENES_OFFSET       2
+#define HUE_LIGHTS_MAX_SCENES          15
+#define HUE_LIGHTS_SCENE_MAX_LIGHTS    10
+struct HueLightsSceneEEPROM {
+  uint8_t status;
+  char name[20];
+  uint8_t brightness[HUE_LIGHTS_SCENE_MAX_LIGHTS];
+  uint8_t saturation[HUE_LIGHTS_SCENE_MAX_LIGHTS];
+  uint16_t hue[HUE_LIGHTS_SCENE_MAX_LIGHTS];
+};
+
+// HueLightsClient
 class HueLightsClient {
 
 public:
@@ -18,7 +39,8 @@ public:
   //commands
   bool setLightOn(uint8_t lightID, bool on);
   bool setLightColor(uint8_t lightID, uint8_t saturation, uint8_t brightness, uint16_t hue);
-  bool getLightCount();
+  bool setLightCount();
+  uint8_t getLightCount();
 
 private:
 
@@ -33,12 +55,13 @@ private:
 
 private:
 
-  uint32_t                    serverIpAddress;
-  char*                       host;
-  char*                       siteRoot;
-  Adafruit_CC3000             cc3000;
-  Adafruit_CC3000_Client      client;
-
+  uint32_t                              serverIpAddress;
+  char*                                 host;
+  char*                                 siteRoot;
+  Adafruit_CC3000                       cc3000;
+  Adafruit_CC3000_Client                client;
+  EEPROMObject<NumberOfLightsEEPROM>    lightsEEPROM;
+  EEPROMObject<HueLightsSceneEEPROM>    scenesEEPROM;
 };
 
 #endif

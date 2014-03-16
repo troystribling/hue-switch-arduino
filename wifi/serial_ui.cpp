@@ -20,8 +20,10 @@
 #define SET_LIGHT_COLOR_CMD         14
 #define SHOW_SCENES                 15
 #define GET_LIGHT_COUNT             16
+#define SET_LIGHT_COUNT             17
 
 void SerialUI::showMainMenu() {
+  currentCommandID = 0;
   MENU("\nHue Lights Main Menu");
   MENU("Terminate entry with -");
   MENU("1.  Set Light On State");
@@ -40,6 +42,7 @@ void SerialUI::showMainMenu() {
   MENU("14. Set Light Color");
   MENU("15. Show Scenes");
   MENU("16. Get Light Count");
+  MENU("17. Set Light Count");
 }
 
 void SerialUI::processSerialInput() {
@@ -52,7 +55,6 @@ void SerialUI::processSerialInput() {
         showMenu();
       } else {
         processCommand(messageBuffer, currentBufferIndex);
-        currentCommandID = 0;
         showMainMenu();
       }
       currentBufferIndex = 0;
@@ -145,14 +147,13 @@ void SerialUI::showMenu() {
       case GET_CURRENT_SCENE_ID_CMD:
       case SHOW_SCENES:
       case GET_LIGHT_COUNT:
+      case SET_LIGHT_COUNT:
         processCommand(NULL, 0);
-        currentCommandID = 0;
         showMainMenu();
         break;
       default:
         ERROR_LOG(F("(SerialUI::showMenu) Command ID is invalid:"));
         ERROR_LOG(currentCommandID, DEC);
-        currentCommandID = 0;
         showMainMenu();
         break;
   }
@@ -224,10 +225,12 @@ void SerialUI::processCommand(char* data, uint8_t size) {
       case GET_LIGHT_COUNT:
         client->getLightCount();
         break;
+      case SET_LIGHT_COUNT:
+        client->setLightCount();
+        break;
       default:
         ERROR_LOG(F("(SerialUI::processCommand) Command ID is invalid:"));
         ERROR_LOG(currentCommandID, DEC);
-        currentCommandID = 0;
         showMainMenu();
         break;
   }
