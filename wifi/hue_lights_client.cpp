@@ -18,8 +18,9 @@ HueLightsClient::HueLightsClient(char*        _host,
   cc3000(Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ, ADAFRUIT_CC3000_VBAT, SPI_CLOCK_DIVIDER)),
   host(_host),
   siteRoot(_siteRoot),
-  lightsEEPROM(EEPROMObject<NumberOfLightsEEPROM>(NUMBER_OF_LIGHTS_EEPROM_OFFSET, MAX_NUMBER_OF_LIGHTS_EEPROM)),
-  scenesEEPROM(EEPROMObject<HueLightsSceneEEPROM>(HUE_LIGHTS_SCENES_OFFSET, HUE_LIGHTS_MAX_SCENES)) {}
+  numberOfLightsEEPROM(EEPROMObject<NumberOfLights>(NUMBER_OF_LIGHTS_OFFSET, MAX_NUMBER_OF_LIGHTS)),
+  scenesEEPROM(EEPROMObject<HueLightsScene>(HUE_LIGHTS_SCENES_OFFSET, HUE_LIGHTS_MAX_SCENES)),
+  currentSceneIDEEPROM(EEPROMObject<HueLightsCurrentSceneID>(HUE_CURRENT_SCENE_ID_OFFSET, MAX_NUMBER_OF_HUE_CURRENT_ID_SCENES)) {}
 
 // network
 bool HueLightsClient::lanConnect(const char*  _wlanSSID, const char*  _wlanPassword) {
@@ -88,6 +89,10 @@ bool HueLightsClient::setLightOn(uint8_t lightID, bool on) {
   return status;
 }
 
+bool HueLightsClient::setAllLightsOn(bool on) {
+  return true;
+}
+
 bool HueLightsClient::setLightColor(uint8_t lightID, uint8_t saturation, uint8_t brightness, uint16_t hue) {
   bool status = false;
   uint8_t count = 0;
@@ -133,8 +138,8 @@ bool HueLightsClient::setLightCount() {
         if (lightCount > 0) {
           DBUG_LOG(F("Light count:"));
           DBUG_LOG(lightCount, DEC);
-          NumberOfLightsEEPROM count = {0x01, lightCount};
-          lightsEEPROM.update(0, count);
+          NumberOfLights count = {0x01, lightCount};
+          numberOfLightsEEPROM.update(0, count);
           status = true;
         }
       } else {
@@ -147,8 +152,8 @@ bool HueLightsClient::setLightCount() {
 }
 
 uint8_t HueLightsClient::getLightCount() {
-  NumberOfLightsEEPROM count;
-  uint16_t bytes = lightsEEPROM.read(0, count);
+  NumberOfLights count;
+  uint16_t bytes = numberOfLightsEEPROM.read(0, count);
   DBUG_LOG(F("Light count:"));
   DBUG_LOG(count.numberOfLights);
   return count.numberOfLights;

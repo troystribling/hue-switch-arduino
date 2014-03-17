@@ -5,22 +5,32 @@
 #include "eeprom_objects.h"
 
 // eeprom storage objects
-#define NUMBER_OF_LIGHTS_EEPROM_OFFSET  0
-#define MAX_NUMBER_OF_LIGHTS_EEPROM     0
-struct NumberOfLightsEEPROM {
+#define NUMBER_OF_LIGHTS_OFFSET           0
+#define MAX_NUMBER_OF_LIGHTS              1
+struct NumberOfLights {
   uint8_t status;
   uint8_t numberOfLights;
 };
 
-#define HUE_LIGHTS_SCENES_OFFSET       2
-#define HUE_LIGHTS_MAX_SCENES          15
-#define HUE_LIGHTS_SCENE_MAX_LIGHTS    10
-struct HueLightsSceneEEPROM {
+#define HUE_CURRENT_SCENE_ID_OFFSET           2
+#define MAX_NUMBER_OF_HUE_CURRENT_ID_SCENES   1
+struct HueLightsCurrentSceneID {
+  uint8_t status;
+  uint8_t currentSceneID;
+};
+
+#define HUE_LIGHTS_SCENES_OFFSET          4
+#define HUE_LIGHTS_MAX_SCENES             12
+#define HUE_LIGHTS_SCENE_MAX_LIGHTS       10
+struct HueLight {
+  uint8_t brightness;
+  uint8_t saturation;
+  uint16_t hue;
+};
+struct HueLightsScene {
   uint8_t status;
   char name[20];
-  uint8_t brightness[HUE_LIGHTS_SCENE_MAX_LIGHTS];
-  uint8_t saturation[HUE_LIGHTS_SCENE_MAX_LIGHTS];
-  uint16_t hue[HUE_LIGHTS_SCENE_MAX_LIGHTS];
+  HueLight lights[HUE_LIGHTS_SCENE_MAX_LIGHTS];
 };
 
 // HueLightsClient
@@ -38,7 +48,16 @@ public:
 
   //commands
   bool setLightOn(uint8_t lightID, bool on);
+  bool setAllLightsOn(bool on);
+  bool addScene(char* name);
+  bool removeScene(uint8_t sceneID);
+  bool nextScene();
+  String getSceneName();
+  bool setSceneName();
+  uint8_t getSceneID();
+  bool setSceneID(uint8_t sceneID);
   bool setLightColor(uint8_t lightID, uint8_t saturation, uint8_t brightness, uint16_t hue);
+  HueLight getLightColor(uint8_t lightID);
   bool setLightCount();
   uint8_t getLightCount();
 
@@ -55,13 +74,16 @@ private:
 
 private:
 
-  uint32_t                              serverIpAddress;
-  char*                                 host;
-  char*                                 siteRoot;
-  Adafruit_CC3000                       cc3000;
-  Adafruit_CC3000_Client                client;
-  EEPROMObject<NumberOfLightsEEPROM>    lightsEEPROM;
-  EEPROMObject<HueLightsSceneEEPROM>    scenesEEPROM;
+  uint32_t                                      serverIpAddress;
+  char*                                         host;
+  char*                                         siteRoot;
+  Adafruit_CC3000                               cc3000;
+  Adafruit_CC3000_Client                        client;
+  uint8_t                                       sceneID;
+  HueLightsScene                                scene;
+  EEPROMObject<NumberOfLights>                  numberOfLightsEEPROM;
+  EEPROMObject<HueLightsScene>                  scenesEEPROM;
+  EEPROMObject<HueLightsCurrentSceneID>         currentSceneIDEEPROM;
 };
 
 #endif
