@@ -21,10 +21,9 @@ private:
   void showSetLightColorMenu();
   void showAddSceneMenu();
   void showRemoveceneMenu();
-  void showGetSceneNameMenu();
   void showSetSceneNameMenu();
   void showGetSceneIDMenu();
-  void showSetSceneIDMenu();
+  void showGetSceneMenu();
   void showSetCurrentSceneIDMenu();
   void showGetLightColorMenu();
   void showSetLightColorenu();

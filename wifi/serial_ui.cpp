@@ -12,7 +12,7 @@
 #define GET_SCENE_NAME_CMD          6
 #define SET_SCENE_NAME_CMD          7
 #define GET_SCENE_ID_CMD            8
-#define SET_SCENE_ID_CMD            9
+#define GET_SCENE_CMD               9
 #define GET_CURRENT_SCENE_ID_CMD    10
 #define SET_CURRENT_SCENE_ID_CMD    11
 #define GET_LIGHT_COLOR_CMD         12
@@ -34,7 +34,7 @@ void SerialUI::showMainMenu() {
   MENU("6.  Get Scene Name");
   MENU("7.  Set Scene Name");
   MENU("8.  Get Scene ID");
-  MENU("9.  Set Scene ID");
+  MENU("9.  Get Scene");
   MENU("10. Get Current Scene ID");
   MENU("11. Set Current Scene ID");
   MENU("12. Get Light Color");
@@ -84,16 +84,10 @@ void SerialUI::showAddSceneMenu() {
 void SerialUI::showRemoveceneMenu() {
 }
 
-void SerialUI::showGetSceneNameMenu() {
-}
-
 void SerialUI::showSetSceneNameMenu() {
 }
 
-void SerialUI::showGetSceneIDMenu() {
-}
-
-void SerialUI::showSetSceneIDMenu() {
+void SerialUI::showGetSceneMenu() {
 }
 
 void SerialUI::showSetCurrentSceneIDMenu() {
@@ -123,17 +117,11 @@ void SerialUI::showMenu() {
       case REMOVE_SCENE_CMD:
         showRemoveceneMenu();
         break;
-      case GET_SCENE_NAME_CMD:
-        showGetSceneNameMenu();
-        break;
       case SET_SCENE_NAME_CMD:
         showSetSceneNameMenu();
         break;
-      case GET_SCENE_ID_CMD:
-        showGetSceneIDMenu();
-        break;
-      case SET_SCENE_ID_CMD:
-        showSetSceneIDMenu();
+      case GET_SCENE_CMD:
+        showGetSceneMenu();
         break;
       case SET_CURRENT_SCENE_ID_CMD:
         showSetCurrentSceneIDMenu();
@@ -144,6 +132,8 @@ void SerialUI::showMenu() {
       case SET_LIGHT_COLOR_CMD:
         showSetLightColorMenu();
         break;
+      case GET_SCENE_NAME_CMD:
+      case GET_SCENE_ID_CMD:
       case NEXT_SCENE:
       case GET_CURRENT_SCENE_ID_CMD:
       case SHOW_SCENES:
@@ -218,7 +208,7 @@ void SerialUI::processCommand() {
         break;
       case GET_SCENE_ID_CMD:
         break;
-      case SET_SCENE_ID_CMD:
+      case GET_SCENE_CMD:
         break;
       case GET_CURRENT_SCENE_ID_CMD:
         break;

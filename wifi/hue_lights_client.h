@@ -50,12 +50,12 @@ public:
   bool setLightOn(uint8_t lightID, bool on);
   bool setAllLightsOn(bool on);
   bool addScene(char* name);
-  bool removeScene(uint8_t sceneID);
+  bool removeScene();
   bool nextScene();
   String getSceneName();
-  bool setSceneName();
+  bool setSceneName(const char* sceneName);
   uint8_t getSceneID();
-  bool setSceneID(uint8_t sceneID);
+  bool getScene(uint8_t _sceneID);
   bool setLightColor(uint8_t lightID, const HueLight& light);
   HueLight getLightColor(uint8_t lightID);
   bool setLightCount();

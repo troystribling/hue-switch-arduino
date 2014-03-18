@@ -101,8 +101,8 @@ bool HueLightsClient::addScene(char* name) {
 
 }
 
-bool HueLightsClient::removeScene(uint8_t sceneID) {
-
+bool HueLightsClient::removeScene() {
+  return scenesEEPROM.remove(sceneID);
 }
 
 bool HueLightsClient::nextScene() {
@@ -113,16 +113,17 @@ String HueLightsClient::getSceneName() {
 
 }
 
-bool HueLightsClient::setSceneName() {
+bool HueLightsClient::setSceneName(const char* sceneName) {
 
 }
 
 uint8_t HueLightsClient::getSceneID() {
-
+  return sceneID;
 }
 
-bool HueLightsClient::setSceneID(uint8_t sceneID) {
-
+bool HueLightsClient::getScene(uint8_t _sceneID) {
+  sceneID = _sceneID;
+  return scenesEEPROM.read(sceneID, scene);
 }
 
 bool HueLightsClient::setLightColor(uint8_t lightID, const HueLight& light) {
