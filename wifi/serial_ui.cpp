@@ -170,6 +170,13 @@ void SerialUI::processSetLightOn() {
   client->setLightOn(lightID, lightOnStatus);
 }
 
+void SerialUI::processSetAllLightsOn() {
+  bool lightOnStatus = (bool)atoi(messageBuffer[0]);
+  DBUG_LOG(F("lightOnStatus:"));
+  DBUG_LOG(lightOnStatus, DEC);
+  client->setAllLightsOn(lightOnStatus);
+}
+
 void SerialUI::processSetLightColor() {
   DBUG_LOG(F("SerialUI::processSetLightColor"));
   HueLight light;
@@ -194,6 +201,7 @@ void SerialUI::processCommand() {
         processSetLightOn();
         break;
       case ALL_LIGHTS_ON_CMD:
+        processSetAllLightsOn();
         break;
       case ADD_SCENE_CMD:
         break;

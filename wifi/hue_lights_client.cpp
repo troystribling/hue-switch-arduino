@@ -90,7 +90,11 @@ bool HueLightsClient::setLightOn(uint8_t lightID, bool on) {
 }
 
 bool HueLightsClient::setAllLightsOn(bool on) {
-  return true;
+  bool status = false;
+  for (int i = 1; i <= getLightCount(); i++) {
+    setLightOn(i, on);
+  }
+  return status;
 }
 
 bool HueLightsClient::addScene(char* name) {

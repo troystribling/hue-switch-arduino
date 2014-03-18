@@ -31,6 +31,7 @@ private:
   void showMenu();
 
   void processSetLightOn();
+  void processSetAllLightsOn();
   void processSetLightColor();
   void processCommand();
 
