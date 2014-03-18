@@ -20,6 +20,7 @@
 #define SHOW_SCENES                 14
 #define GET_LIGHT_COUNT             15
 #define SET_LIGHT_COUNT             16
+#define GET_SCENE_COUNT             17
 
 void SerialUI::showMainMenu() {
   currentCommandID = 0;
@@ -41,6 +42,7 @@ void SerialUI::showMainMenu() {
   MENU("14. Show Scenes");
   MENU("15. Get Light Count");
   MENU("16. Set Light Count");
+  MENU("17. Get Scene Count");
 }
 
 void SerialUI::processSerialInput() {
@@ -147,6 +149,7 @@ void SerialUI::showMenu() {
       case SHOW_SCENES:
       case GET_LIGHT_COUNT:
       case SET_LIGHT_COUNT:
+      case GET_SCENE_COUNT:
         processCommand();
         showMainMenu();
         break;
@@ -233,6 +236,9 @@ void SerialUI::processCommand() {
         break;
       case SET_LIGHT_COUNT:
         client->setLightCount();
+        break;
+      case GET_SCENE_COUNT:
+        client->getSceneCount();
         break;
       default:
         ERROR_LOG(F("(SerialUI::processCommand) Command ID is invalid:"));

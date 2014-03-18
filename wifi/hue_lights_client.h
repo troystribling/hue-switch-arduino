@@ -60,6 +60,7 @@ public:
   HueLight getLightColor(uint8_t lightID);
   bool setLightCount();
   uint8_t getLightCount();
+  uint8_t getSceneCount();
 
 private:
 

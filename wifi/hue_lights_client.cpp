@@ -191,6 +191,13 @@ uint8_t HueLightsClient::getLightCount() {
   return count.numberOfLights;
 }
 
+uint8_t HueLightsClient::getSceneCount() {
+  uint8_t count = scenesEEPROM.count();
+  DBUG_LOG(F("Scene count:"));
+  DBUG_LOG(count);
+  return count;
+}
+
 // private
 bool HueLightsClient::siteConnect() {
   if (serverIpAddress != 0) {
