@@ -56,7 +56,7 @@ public:
   bool setSceneName();
   uint8_t getSceneID();
   bool setSceneID(uint8_t sceneID);
-  bool setLightColor(uint8_t lightID, uint8_t saturation, uint8_t brightness, uint16_t hue);
+  bool setLightColor(uint8_t lightID, const HueLight& light);
   HueLight getLightColor(uint8_t lightID);
   bool setLightCount();
   uint8_t getLightCount();

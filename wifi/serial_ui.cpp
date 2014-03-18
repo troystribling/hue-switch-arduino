@@ -47,20 +47,22 @@ void SerialUI::processSerialInput() {
   if (Serial.available()) {
     char c = Serial.read();
     if (c == '-' || currentBufferIndex == MAX_MESSAGE_SIZE) {
-      messageBuffer[currentBufferIndex] = '\0';
+      messageBuffer[currentMessageIndex][currentBufferIndex] = '\0';
       if (currentCommandID == 0) {
-        currentCommandID = atoi(messageBuffer);
+        currentCommandID = atoi(messageBuffer[0]);
         showMenu();
       } else {
-        processCommand(messageBuffer, currentBufferIndex);
+        processCommand();
         showMainMenu();
       }
       currentBufferIndex = 0;
+      currentMessageIndex = 0;
     } else if (c == '&') {
-      messageBuffer[currentBufferIndex] = '\0';
-      currentBufferIndex++;
+      messageBuffer[currentMessageIndex][currentBufferIndex] = '\0';
+      currentMessageIndex++;
+      currentBufferIndex = 0;
     } else {
-      messageBuffer[currentBufferIndex] = c;
+      messageBuffer[currentMessageIndex][currentBufferIndex] = c;
       currentBufferIndex++;
     }
   }
@@ -145,7 +147,7 @@ void SerialUI::showMenu() {
       case SHOW_SCENES:
       case GET_LIGHT_COUNT:
       case SET_LIGHT_COUNT:
-        processCommand(NULL, 0);
+        processCommand();
         showMainMenu();
         break;
       default:
@@ -157,10 +159,10 @@ void SerialUI::showMenu() {
 }
 
 
-void SerialUI::processSetLightOn(char* data, uint8_t size) {
+void SerialUI::processSetLightOn() {
   DBUG_LOG(F("SerialUI::processLightOn"));
-  uint8_t lightID = (uint8_t)atoi(&data[0]);
-  bool lightOnStatus = (bool)atoi(&data[2]);
+  uint8_t lightID = (uint8_t)atoi(messageBuffer[0]);
+  bool lightOnStatus = (bool)atoi(messageBuffer[1]);
   DBUG_LOG(F("lightID:"));
   DBUG_LOG(lightID, DEC);
   DBUG_LOG(F("lightOnStatus:"));
@@ -168,27 +170,28 @@ void SerialUI::processSetLightOn(char* data, uint8_t size) {
   client->setLightOn(lightID, lightOnStatus);
 }
 
-void SerialUI::processSetLightColor(char* data, uint8_t size) {
+void SerialUI::processSetLightColor() {
   DBUG_LOG(F("SerialUI::processSetLightColor"));
-  uint8_t lightID = (uint8_t)atoi(&data[0]);
-  uint8_t brightness = (uint8_t)atoi(&data[2]);
-  uint8_t saturation = (uint8_t)atoi(&data[4]);
-  uint16_t hue = (uint16_t)atoi(&data[6]);
+  HueLight light;
+  uint8_t lightID = (uint8_t)atoi(messageBuffer[0]);
+  light.brightness = (uint8_t)atoi(messageBuffer[1]);
+  light.saturation = (uint8_t)atoi(messageBuffer[2]);
+  light.hue = (uint16_t)atoi(messageBuffer[3]);
   DBUG_LOG(F("lightID:"));
   DBUG_LOG(lightID, DEC);
   DBUG_LOG(F("brightness:"));
-  DBUG_LOG(brightness, DEC);
+  DBUG_LOG(light.brightness, DEC);
   DBUG_LOG(F("saturation:"));
-  DBUG_LOG(saturation, DEC);
+  DBUG_LOG(light.saturation, DEC);
   DBUG_LOG(F("hue:"));
-  DBUG_LOG(hue, DEC);
-  client->setLightColor(lightID, brightness, saturation, hue);
+  DBUG_LOG(light.hue, DEC);
+  client->setLightColor(lightID, light);
 }
 
-void SerialUI::processCommand(char* data, uint8_t size) {
+void SerialUI::processCommand() {
   switch (currentCommandID) {
       case LIGHT_ON_CMD:
-        processSetLightOn(data, size);
+        processSetLightOn();
         break;
       case ALL_LIGHTS_ON_CMD:
         break;
@@ -213,7 +216,7 @@ void SerialUI::processCommand(char* data, uint8_t size) {
       case GET_LIGHT_COLOR_CMD:
         break;
       case SET_LIGHT_COLOR_CMD:
-        processSetLightColor(data, size);
+        processSetLightColor();
         break;
       case SHOW_SCENES:
         break;
@@ -230,3 +233,4 @@ void SerialUI::processCommand(char* data, uint8_t size) {
         break;
   }
 }
+

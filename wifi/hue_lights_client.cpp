@@ -93,7 +93,35 @@ bool HueLightsClient::setAllLightsOn(bool on) {
   return true;
 }
 
-bool HueLightsClient::setLightColor(uint8_t lightID, uint8_t saturation, uint8_t brightness, uint16_t hue) {
+bool HueLightsClient::addScene(char* name) {
+
+}
+
+bool HueLightsClient::removeScene(uint8_t sceneID) {
+
+}
+
+bool HueLightsClient::nextScene() {
+
+}
+
+String HueLightsClient::getSceneName() {
+
+}
+
+bool HueLightsClient::setSceneName() {
+
+}
+
+uint8_t HueLightsClient::getSceneID() {
+
+}
+
+bool HueLightsClient::setSceneID(uint8_t sceneID) {
+
+}
+
+bool HueLightsClient::setLightColor(uint8_t lightID, const HueLight& light) {
   bool status = false;
   uint8_t count = 0;
   String url = String(siteRoot);
@@ -101,11 +129,11 @@ bool HueLightsClient::setLightColor(uint8_t lightID, uint8_t saturation, uint8_t
   url += String(lightID);
   url += String("/state");
   String body = String("{\"bri\":");
-  body += String(brightness);
+  body += String(light.brightness);
   body += String(",\"hue\":");
-  body += String(hue);
+  body += String(light.hue);
   body += String(",\"sat\":");
-  body += String(saturation);
+  body += String(light.saturation);
   body += String("}");
   String headers = String(HTTP_HEADERS);
   headers += String(body.length());

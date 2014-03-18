@@ -3,13 +3,14 @@
 
 #import "hue_lights_client.h"
 
-#define MAX_MESSAGE_SIZE            25
+#define MAX_MESSAGE_SIZE    6
+#define MAX_MESSAGES        5
 
 class SerialUI {
 
 public:
 
-  SerialUI(HueLightsClient* _client) : client(_client), currentCommandID(0), currentBufferIndex(0){};
+  SerialUI(HueLightsClient* _client) : client(_client), currentCommandID(0), currentBufferIndex(0), currentMessageIndex(0){};
   void showMainMenu();
   void processSerialInput();
 
@@ -29,16 +30,18 @@ private:
   void showSetLightColorenu();
   void showMenu();
 
-  void processSetLightOn(char* data, uint8_t size);
-  void processSetLightColor(char* data, uint8_t size);
-  void processCommand(char* data, uint8_t size);
+  void processSetLightOn();
+  void processSetLightColor();
+  void processCommand();
 
 private:
 
   HueLightsClient* client;
   uint8_t currentCommandID;
   uint8_t currentBufferIndex;
-  char messageBuffer[MAX_MESSAGE_SIZE];
+  uint8_t currentMessageIndex;
+  char messageBuffer[MAX_MESSAGES][MAX_MESSAGE_SIZE];
+
 };
 
 #endif
