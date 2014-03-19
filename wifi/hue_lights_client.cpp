@@ -23,7 +23,7 @@ HueLightsClient::HueLightsClient(char*        _host,
   currentSceneIDEEPROM(EEPROMObject<HueLightsCurrentSceneID>(HUE_CURRENT_SCENE_ID_OFFSET, MAX_NUMBER_OF_HUE_CURRENT_ID_SCENES)) {}
 
 // network
-bool HueLightsClient::lanConnect(const char*  _wlanSSID, const char*  _wlanPassword) {
+void HueLightsClient::lanConnect(const char*  _wlanSSID, const char*  _wlanPassword) {
   serverIpAddress = 0;
   HALT_ON_ERROR(cc3000.begin(), F("Couldn't begin()! Check your wiring?"));
   HALT_ON_ERROR(cc3000.connectToAP(_wlanSSID, _wlanPassword, WLAN_SECURITY), F("Connect Failed!"));
@@ -57,8 +57,8 @@ bool HueLightsClient::lanDisconnect() {
   }
 }
 
-// commands
-bool HueLightsClient::setLightOn(uint8_t lightID, bool on) {
+// light commands
+void HueLightsClient::setLightOn(uint8_t lightID, bool on) {
   bool status = false;
   uint8_t count = 0;
   String url = String(siteRoot);
@@ -86,47 +86,15 @@ bool HueLightsClient::setLightOn(uint8_t lightID, bool on) {
       siteClose();
     }
   }
-  return status;
 }
 
-bool HueLightsClient::setAllLightsOn(bool on) {
-  bool status = false;
+void HueLightsClient::setAllLightsOn(bool on) {
   for (int i = 1; i <= getLightCount(); i++) {
     setLightOn(i, on);
   }
-  return status;
 }
 
-bool HueLightsClient::addScene(char* name) {
-
-}
-
-bool HueLightsClient::removeScene() {
-  return scenesEEPROM.remove(sceneID);
-}
-
-bool HueLightsClient::nextScene() {
-
-}
-
-String HueLightsClient::getSceneName() {
-
-}
-
-bool HueLightsClient::setSceneName(const char* sceneName) {
-
-}
-
-uint8_t HueLightsClient::getSceneID() {
-  return sceneID;
-}
-
-bool HueLightsClient::getScene(uint8_t _sceneID) {
-  sceneID = _sceneID;
-  return scenesEEPROM.read(sceneID, scene);
-}
-
-bool HueLightsClient::setLightColor(uint8_t lightID, const HueLight& light) {
+void HueLightsClient::setLightColor(uint8_t lightID, const HueLight& light) {
   bool status = false;
   uint8_t count = 0;
   String url = String(siteRoot);
@@ -155,10 +123,9 @@ bool HueLightsClient::setLightColor(uint8_t lightID, const HueLight& light) {
       siteClose();
     }
   }
-  return status;
 }
 
-bool HueLightsClient::setLightCount() {
+void HueLightsClient::setLightCount() {
   bool status = false;
   uint8_t count = 0;
   String url = String(siteRoot);
@@ -181,15 +148,37 @@ bool HueLightsClient::setLightCount() {
       siteClose();
     }
   }
-  return status;
 }
 
 uint8_t HueLightsClient::getLightCount() {
   NumberOfLights count;
-  uint16_t bytes = numberOfLightsEEPROM.read(0, count);
+  numberOfLightsEEPROM.read(0, count);
   DBUG_LOG(F("Light count:"));
   DBUG_LOG(count.numberOfLights);
   return count.numberOfLights;
+}
+
+// scene commands
+uint8_t HueLightsClient::createScene(const HueLightsScene& scene) {
+  uint8_t index;
+  scenesEEPROM.create(index, scene);
+  return index;
+}
+
+void HueLightsClient::updateScene(uint8_t sceneID, const HueLightsScene& scene) {
+  scenesEEPROM.update(sceneID, scene);
+}
+
+void HueLightsClient::removeScene(uint8_t sceneID) {
+  scenesEEPROM.remove(sceneID);
+}
+
+void HueLightsClient::nextScene(uint8_t& sceneID, HueLightsScene& scene) {
+  scenesEEPROM.next(sceneID, scene);
+}
+
+void HueLightsClient::getScene(uint8_t sceneID, HueLightsScene& scene) {
+  scenesEEPROM.read(sceneID, scene);
 }
 
 uint8_t HueLightsClient::getSceneCount() {
@@ -197,6 +186,26 @@ uint8_t HueLightsClient::getSceneCount() {
   DBUG_LOG(F("Scene count:"));
   DBUG_LOG(count);
   return count;
+}
+
+uint8_t HueLightsClient::getCurrentSceneID() {
+  HueLightsCurrentSceneID currentID;
+  currentSceneIDEEPROM.read(0, currentID);
+  DBUG_LOG(F("Current Scene ID"));
+  DBUG_LOG(currentID.currentSceneID);
+  return currentID.currentSceneID;
+}
+
+void HueLightsClient::setCurrentScene(uint8_t currentSceneID) {
+  HueLightsCurrentSceneID currentID = {0x01, currentSceneID};
+  currentSceneIDEEPROM.update(0, currentID);
+  DBUG_LOG(F("Current Scene ID"));
+  DBUG_LOG(currentID.currentSceneID);
+  HueLightsScene currentScene;
+  scenesEEPROM.read(currentSceneID, currentScene);
+  for (uint8_t i = 0; i < getLightCount(); i++) {
+    setLightColor(i, currentScene.lights[i]);
+  }
 }
 
 // private
@@ -209,7 +218,7 @@ bool HueLightsClient::siteConnect() {
   } else {
     ERROR_LOG(F("Cannot connect to server becuase server IP is not available:"));
     ERROR_LOG(serverIpAddress, HEX);
-  return false;
+    return false;
   }
 }
 

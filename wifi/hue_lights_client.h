@@ -42,25 +42,27 @@ public:
                   char*       _siteRoot);
 
   // network
-  bool lanConnect(const char*  _wlanSSID, const char*  _wlanPassword);
+  void lanConnect(const char*  _wlanSSID, const char*  _wlanPassword);
   bool lanConnected();
   bool lanDisconnect();
 
-  //commands
-  bool setLightOn(uint8_t lightID, bool on);
-  bool setAllLightsOn(bool on);
-  bool addScene(char* name);
-  bool removeScene();
-  bool nextScene();
-  String getSceneName();
-  bool setSceneName(const char* sceneName);
-  uint8_t getSceneID();
-  bool getScene(uint8_t _sceneID);
-  bool setLightColor(uint8_t lightID, const HueLight& light);
+  //light commands
+  void setLightOn(uint8_t lightID, bool on);
+  void setAllLightsOn(bool on);
+  void setLightColor(uint8_t lightID, const HueLight& light);
   HueLight getLightColor(uint8_t lightID);
-  bool setLightCount();
+  void setLightCount();
   uint8_t getLightCount();
+
+  // scene commands
+  uint8_t createScene(const HueLightsScene& scene);
+  void updateScene(uint8_t sceneID, const HueLightsScene& scene);
+  void removeScene(uint8_t sceneID);
+  void nextScene(uint8_t& sceneID, HueLightsScene& scene);
+  void getScene(uint8_t sceneID, HueLightsScene& scene);
   uint8_t getSceneCount();
+  uint8_t getCurrentSceneID();
+  void setCurrentScene(uint8_t currentSceneID);
 
 private:
 
@@ -80,8 +82,6 @@ private:
   char*                                         siteRoot;
   Adafruit_CC3000                               cc3000;
   Adafruit_CC3000_Client                        client;
-  uint8_t                                       sceneID;
-  HueLightsScene                                scene;
   EEPROMObject<NumberOfLights>                  numberOfLightsEEPROM;
   EEPROMObject<HueLightsScene>                  scenesEEPROM;
   EEPROMObject<HueLightsCurrentSceneID>         currentSceneIDEEPROM;

@@ -6,21 +6,22 @@
 #define MAIN_MENU_CMD               0
 #define LIGHT_ON_CMD                1
 #define ALL_LIGHTS_ON_CMD           2
-#define ADD_SCENE_CMD               3
-#define REMOVE_SCENE_CMD            4
-#define NEXT_SCENE                  5
-#define GET_SCENE_NAME_CMD          6
-#define SET_SCENE_NAME_CMD          7
-#define GET_SCENE_ID_CMD            8
-#define GET_SCENE_CMD               9
-#define GET_CURRENT_SCENE_ID_CMD    10
-#define SET_CURRENT_SCENE_ID_CMD    11
-#define GET_LIGHT_COLOR_CMD         12
-#define SET_LIGHT_COLOR_CMD         13
-#define SHOW_SCENES                 14
-#define GET_LIGHT_COUNT             15
-#define SET_LIGHT_COUNT             16
-#define GET_SCENE_COUNT             17
+#define CREATE_SCENE_CMD            3
+#define UPDATE_SCENE_CMD            4
+#define REMOVE_SCENE_CMD            5
+#define NEXT_SCENE                  6
+#define GET_SCENE_NAME_CMD          7
+#define SET_SCENE_NAME_CMD          8
+#define GET_SCENE_ID_CMD            9
+#define GET_SCENE_CMD               10
+#define GET_CURRENT_SCENE_ID_CMD    11
+#define SET_CURRENT_SCENE_ID_CMD    12
+#define GET_LIGHT_COLOR_CMD         13
+#define SET_LIGHT_COLOR_CMD         14
+#define SHOW_SCENES                 15
+#define GET_LIGHT_COUNT             16
+#define SET_LIGHT_COUNT             17
+#define GET_SCENE_COUNT             18
 
 void SerialUI::showMainMenu() {
   currentCommandID = 0;
@@ -28,21 +29,22 @@ void SerialUI::showMainMenu() {
   MENU("Terminate entry with -");
   MENU("1.  Set Light On State");
   MENU("2.  Set All Lights On State");
-  MENU("3.  Add Scence");
-  MENU("4.  Remove Scene");
-  MENU("5.  Next Scene");
-  MENU("6.  Get Scene Name");
-  MENU("7.  Set Scene Name");
-  MENU("8.  Get Scene ID");
-  MENU("9.  Get Scene");
-  MENU("10. Get Current Scene ID");
-  MENU("11. Set Current Scene ID");
-  MENU("12. Get Light Color");
-  MENU("13. Set Light Color");
-  MENU("14. Show Scenes");
-  MENU("15. Get Light Count");
-  MENU("16. Set Light Count");
-  MENU("17. Get Scene Count");
+  MENU("3.  Create Scence");
+  MENU("4.  Update Scence");
+  MENU("5.  Remove Scene");
+  MENU("6.  Next Scene");
+  MENU("7.  Get Scene Name");
+  MENU("8.  Set Scene Name");
+  MENU("9.  Get Scene ID");
+  MENU("10.  Get Scene");
+  MENU("11. Get Current Scene ID");
+  MENU("12. Set Current Scene ID");
+  MENU("13. Get Light Color");
+  MENU("14. Set Light Color");
+  MENU("15. Show Scenes");
+  MENU("16. Get Light Count");
+  MENU("17. Set Light Count");
+  MENU("18. Get Scene Count");
 }
 
 void SerialUI::processSerialInput() {
@@ -78,9 +80,6 @@ void SerialUI::showSetAllLightsOnMenu() {
   MENU("\nSet All Lights On: OnState");
 }
 
-void SerialUI::showAddSceneMenu() {
-}
-
 void SerialUI::showRemoveceneMenu() {
 }
 
@@ -111,9 +110,6 @@ void SerialUI::showMenu() {
       case ALL_LIGHTS_ON_CMD:
         showSetAllLightsOnMenu();
         break;
-      case ADD_SCENE_CMD:
-        showAddSceneMenu();
-        break;
       case REMOVE_SCENE_CMD:
         showRemoveceneMenu();
         break;
@@ -132,6 +128,8 @@ void SerialUI::showMenu() {
       case SET_LIGHT_COLOR_CMD:
         showSetLightColorMenu();
         break;
+      case CREATE_SCENE_CMD:
+      case UPDATE_SCENE_CMD:
       case GET_SCENE_NAME_CMD:
       case GET_SCENE_ID_CMD:
       case NEXT_SCENE:
@@ -196,7 +194,9 @@ void SerialUI::processCommand() {
       case ALL_LIGHTS_ON_CMD:
         processSetAllLightsOn();
         break;
-      case ADD_SCENE_CMD:
+      case CREATE_SCENE_CMD:
+        break;
+      case UPDATE_SCENE_CMD:
         break;
       case REMOVE_SCENE_CMD:
         break;
