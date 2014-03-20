@@ -10,7 +10,7 @@ class SerialUI {
 
 public:
 
-  SerialUI(HueLightsClient* _client) : client(_client), currentCommandID(0), currentBufferIndex(0), currentMessageIndex(0){};
+  SerialUI(HueLightsClient* _client) : client(_client), currentCommandID(0), currentBufferIndex(0), currentMessageIndex(0), sceneID(0) {};
   void showMainMenu();
   void processSerialInput();
 
@@ -20,11 +20,11 @@ private:
   void showSetAllLightsOnMenu();
   void showSetLightColorMenu();
   void showAddSceneMenu();
-  void showRemoveceneMenu();
+  void showRemoveSceneMenu();
   void showSetSceneNameMenu();
   void showGetSceneIDMenu();
   void showGetSceneMenu();
-  void showSetCurrentSceneIDMenu();
+  void showSetCurrentSceneMenu();
   void showGetLightColorMenu();
   void showSetLightColorenu();
   void showMenu();
@@ -32,16 +32,21 @@ private:
   void processSetLightOn();
   void processSetAllLightsOn();
   void processSetLightColor();
+  void processGetLightColor();
+  void processGetScene();
+  void processSetSceneName();
+  void processSetCurrentScene();
   void processCommand();
 
 private:
 
-  HueLightsClient* client;
-  uint8_t currentCommandID;
-  uint8_t currentBufferIndex;
-  uint8_t currentMessageIndex;
-  char messageBuffer[MAX_MESSAGES][MAX_MESSAGE_SIZE];
-
+  HueLightsClient*  client;
+  uint8_t           currentCommandID;
+  uint8_t           currentBufferIndex;
+  uint8_t           currentMessageIndex;
+  char              messageBuffer[MAX_MESSAGES][MAX_MESSAGE_SIZE];
+  HueLightsScene    scene;
+  uint8_t           sceneID;
 };
 
 #endif

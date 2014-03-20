@@ -47,11 +47,10 @@ public:
   bool lanDisconnect();
 
   //light commands
-  void setLightOn(uint8_t lightID, bool on);
-  void setAllLightsOn(bool on);
-  void setLightColor(uint8_t lightID, const HueLight& light);
-  HueLight getLightColor(uint8_t lightID);
-  void setLightCount();
+  bool setLightOn(uint8_t lightID, bool on);
+  bool setAllLightsOn(bool on);
+  bool setLightColor(uint8_t lightID, const HueLight& light);
+  bool setLightCount();
   uint8_t getLightCount();
 
   // scene commands
@@ -62,7 +61,7 @@ public:
   void getScene(uint8_t sceneID, HueLightsScene& scene);
   uint8_t getSceneCount();
   uint8_t getCurrentSceneID();
-  void setCurrentScene(uint8_t currentSceneID);
+  void setCurrentScene(uint8_t sceneID);
 
 private:
 

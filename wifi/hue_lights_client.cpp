@@ -58,7 +58,7 @@ bool HueLightsClient::lanDisconnect() {
 }
 
 // light commands
-void HueLightsClient::setLightOn(uint8_t lightID, bool on) {
+bool HueLightsClient::setLightOn(uint8_t lightID, bool on) {
   bool status = false;
   uint8_t count = 0;
   String url = String(siteRoot);
@@ -86,15 +86,21 @@ void HueLightsClient::setLightOn(uint8_t lightID, bool on) {
       siteClose();
     }
   }
+  return status;
 }
 
-void HueLightsClient::setAllLightsOn(bool on) {
+bool HueLightsClient::setAllLightsOn(bool on) {
+  bool status = true;
   for (int i = 1; i <= getLightCount(); i++) {
-    setLightOn(i, on);
+    if (!setLightOn(i, on)) {
+      status = false;
+      break;
+    }
   }
+  return status;
 }
 
-void HueLightsClient::setLightColor(uint8_t lightID, const HueLight& light) {
+bool HueLightsClient::setLightColor(uint8_t lightID, const HueLight& light) {
   bool status = false;
   uint8_t count = 0;
   String url = String(siteRoot);
@@ -123,9 +129,10 @@ void HueLightsClient::setLightColor(uint8_t lightID, const HueLight& light) {
       siteClose();
     }
   }
+  return status;
 }
 
-void HueLightsClient::setLightCount() {
+bool HueLightsClient::setLightCount() {
   bool status = false;
   uint8_t count = 0;
   String url = String(siteRoot);
@@ -148,6 +155,7 @@ void HueLightsClient::setLightCount() {
       siteClose();
     }
   }
+  return status;
 }
 
 uint8_t HueLightsClient::getLightCount() {
@@ -196,13 +204,13 @@ uint8_t HueLightsClient::getCurrentSceneID() {
   return currentID.currentSceneID;
 }
 
-void HueLightsClient::setCurrentScene(uint8_t currentSceneID) {
-  HueLightsCurrentSceneID currentID = {0x01, currentSceneID};
+void HueLightsClient::setCurrentScene(uint8_t sceneID) {
+  HueLightsCurrentSceneID currentID = {0x01, sceneID};
   currentSceneIDEEPROM.update(0, currentID);
   DBUG_LOG(F("Current Scene ID"));
   DBUG_LOG(currentID.currentSceneID);
   HueLightsScene currentScene;
-  scenesEEPROM.read(currentSceneID, currentScene);
+  scenesEEPROM.read(sceneID, currentScene);
   for (uint8_t i = 0; i < getLightCount(); i++) {
     setLightColor(i, currentScene.lights[i]);
   }

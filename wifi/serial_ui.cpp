@@ -15,13 +15,12 @@
 #define GET_SCENE_ID_CMD            9
 #define GET_SCENE_CMD               10
 #define GET_CURRENT_SCENE_ID_CMD    11
-#define SET_CURRENT_SCENE_ID_CMD    12
+#define SET_CURRENT_SCENE_CMD       12
 #define GET_LIGHT_COLOR_CMD         13
 #define SET_LIGHT_COLOR_CMD         14
-#define SHOW_SCENES                 15
-#define GET_LIGHT_COUNT             16
-#define SET_LIGHT_COUNT             17
-#define GET_SCENE_COUNT             18
+#define GET_LIGHT_COUNT             15
+#define SET_LIGHT_COUNT             16
+#define GET_SCENE_COUNT             17
 
 void SerialUI::showMainMenu() {
   currentCommandID = 0;
@@ -36,15 +35,14 @@ void SerialUI::showMainMenu() {
   MENU("7.  Get Scene Name");
   MENU("8.  Set Scene Name");
   MENU("9.  Get Scene ID");
-  MENU("10.  Get Scene");
+  MENU("10. Get Scene");
   MENU("11. Get Current Scene ID");
   MENU("12. Set Current Scene ID");
   MENU("13. Get Light Color");
   MENU("14. Set Light Color");
-  MENU("15. Show Scenes");
-  MENU("16. Get Light Count");
-  MENU("17. Set Light Count");
-  MENU("18. Get Scene Count");
+  MENU("15. Get Light Count");
+  MENU("16. Set Light Count");
+  MENU("17. Get Scene Count");
 }
 
 void SerialUI::processSerialInput() {
@@ -77,26 +75,31 @@ void SerialUI::showSetLightOnMenu() {
 }
 
 void SerialUI::showSetAllLightsOnMenu() {
-  MENU("\nSet All Lights On: OnState");
-}
-
-void SerialUI::showRemoveceneMenu() {
+  MENU("\nSet All Lights On: OnState-");
 }
 
 void SerialUI::showSetSceneNameMenu() {
+  MENU("\nSet Scene Name: Name-");
 }
 
 void SerialUI::showGetSceneMenu() {
+  MENU("\nGet Scene: ID-");
 }
 
-void SerialUI::showSetCurrentSceneIDMenu() {
+void SerialUI::showRemoveSceneMenu() {
+  MENU("\nSet All Lights: OnState");
 }
 
-void SerialUI::showGetLightColorMenu() {
+void SerialUI::showSetCurrentSceneMenu() {
+  MENU("\nSet Current Scene: ID-");
 }
 
 void SerialUI::showSetLightColorMenu() {
   MENU("\nSet Light Color: LightId&Brightness&Saturation&Hue-");
+}
+
+void SerialUI::showGetLightColorMenu() {
+  MENU("\nGet Light Color: ID-");
 }
 
 void SerialUI::showMenu() {
@@ -111,7 +114,7 @@ void SerialUI::showMenu() {
         showSetAllLightsOnMenu();
         break;
       case REMOVE_SCENE_CMD:
-        showRemoveceneMenu();
+        showRemoveSceneMenu();
         break;
       case SET_SCENE_NAME_CMD:
         showSetSceneNameMenu();
@@ -119,8 +122,8 @@ void SerialUI::showMenu() {
       case GET_SCENE_CMD:
         showGetSceneMenu();
         break;
-      case SET_CURRENT_SCENE_ID_CMD:
-        showSetCurrentSceneIDMenu();
+      case SET_CURRENT_SCENE_CMD:
+        showSetCurrentSceneMenu();
         break;
       case GET_LIGHT_COLOR_CMD:
         showGetLightColorMenu();
@@ -134,7 +137,6 @@ void SerialUI::showMenu() {
       case GET_SCENE_ID_CMD:
       case NEXT_SCENE:
       case GET_CURRENT_SCENE_ID_CMD:
-      case SHOW_SCENES:
       case GET_LIGHT_COUNT:
       case SET_LIGHT_COUNT:
       case GET_SCENE_COUNT:
@@ -183,7 +185,56 @@ void SerialUI::processSetLightColor() {
   DBUG_LOG(light.saturation, DEC);
   DBUG_LOG(F("hue:"));
   DBUG_LOG(light.hue, DEC);
-  client->setLightColor(lightID, light);
+  if (client->setLightColor(lightID, light)) {
+    scene.lights[lightID].brightness = light.brightness;
+    scene.lights[lightID].saturation = light.saturation;
+    scene.lights[lightID].hue = light.hue;
+  }
+}
+
+void SerialUI::processGetLightColor() {
+  uint8_t lightID = (uint8_t)atoi(messageBuffer[0]);
+  DBUG_LOG(F("brightness:"));
+  DBUG_LOG(scene.lights[lightID].brightness, DEC);
+  DBUG_LOG(F("saturation:"));
+  DBUG_LOG(scene.lights[lightID].saturation, DEC);
+  DBUG_LOG(F("hue:"));
+  DBUG_LOG(scene.lights[lightID].hue, DEC);
+}
+
+void  SerialUI::processGetScene() {
+  sceneID = (uint8_t)atoi(messageBuffer[0]);
+  DBUG_LOG(F("sceneID:"));
+  DBUG_LOG(sceneID);
+  client->getScene(sceneID, scene);
+  DBUG_LOG(F("sceneID:"));
+  DBUG_LOG(sceneID);
+  DBUG_LOG(F("Scene Name:"));
+  DBUG_LOG(scene.name);
+  for (int i = 0; i < client->setLightCount(); i++) {
+    DBUG_LOG(F("lightID:"));
+    DBUG_LOG(i);
+    DBUG_LOG(F("brightness:"));
+    DBUG_LOG(scene.lights[i].brightness);
+    DBUG_LOG(F("saturation:"));
+    DBUG_LOG(scene.lights[i].saturation);
+    DBUG_LOG(F("hue:"));
+    DBUG_LOG(scene.lights[i].hue);
+  }
+}
+
+void  SerialUI::processSetSceneName() {
+  char* sceneName = messageBuffer[0];
+  DBUG_LOG(F("sceneName:"));
+  DBUG_LOG(sceneName);
+  strcpy(scene.name, sceneName);
+}
+
+void SerialUI::processSetCurrentScene() {
+  uint8_t sceneID = (uint8_t)atoi(messageBuffer[0]);
+  DBUG_LOG(F("sceneID:"));
+  DBUG_LOG(sceneID);
+  client->setCurrentScene(sceneID);
 }
 
 void SerialUI::processCommand() {
@@ -195,31 +246,42 @@ void SerialUI::processCommand() {
         processSetAllLightsOn();
         break;
       case CREATE_SCENE_CMD:
+        client->createScene(scene);
         break;
       case UPDATE_SCENE_CMD:
+        client->updateScene(sceneID, scene);
         break;
       case REMOVE_SCENE_CMD:
+        client->removeScene(sceneID);
         break;
       case NEXT_SCENE:
+        client->nextScene(sceneID, scene);
         break;
       case GET_SCENE_NAME_CMD:
+        DBUG_LOG(F("Scene Name:"));
+        DBUG_LOG(scene.name);
         break;
       case SET_SCENE_NAME_CMD:
+        processSetSceneName();
         break;
       case GET_SCENE_ID_CMD:
+        DBUG_LOG(F("Scene ID:"));
+        DBUG_LOG(sceneID);
         break;
       case GET_SCENE_CMD:
+        processGetScene();
         break;
       case GET_CURRENT_SCENE_ID_CMD:
+        client->getCurrentSceneID();
         break;
-      case SET_CURRENT_SCENE_ID_CMD:
+      case SET_CURRENT_SCENE_CMD:
+        processSetCurrentScene();
         break;
       case GET_LIGHT_COLOR_CMD:
+        processGetLightColor();
         break;
       case SET_LIGHT_COLOR_CMD:
         processSetLightColor();
-        break;
-      case SHOW_SCENES:
         break;
       case GET_LIGHT_COUNT:
         client->getLightCount();
