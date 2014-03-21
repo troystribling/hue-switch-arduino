@@ -41,8 +41,6 @@ void HueLightsClient::lanConnect(const char*  _wlanSSID, const char*  _wlanPassw
     }
     delay(500);
   }
-  DBUG_LOG(F("Server IP Resolved:"));
-  DBUG_LOG(serverIpAddress, HEX);
 }
 
 bool HueLightsClient::lanConnected() {
@@ -78,7 +76,6 @@ bool HueLightsClient::setLightOn(uint8_t lightID, bool on) {
     if (httpRequest(F("PUT"), &url, &headers, &body)) {
       uint16_t httpStatus = readHTTPResponseStatus();
       if (httpStatus == 200) {
-        DBUG_LOG(F("Set light on successful"));
         status = true;
       } else {
         ERROR_LOG(F("Set light on failed"));
@@ -121,7 +118,6 @@ bool HueLightsClient::setLightColor(uint8_t lightID, const HueLight& light) {
     if (httpRequest(F("PUT"), &url, &headers, &body)) {
       uint16_t httpStatus = readHTTPResponseStatus();
       if (httpStatus == 200) {
-        DBUG_LOG(F("Set light color successful"));
         status = true;
       } else {
         ERROR_LOG(F("Set light color failed"));
@@ -143,8 +139,6 @@ bool HueLightsClient::setLightCount() {
       if (httpStatus == 200) {
         uint8_t lightCount = readHTTPLightsResponse();
         if (lightCount > 0) {
-          DBUG_LOG(F("Light count:"));
-          DBUG_LOG(lightCount, DEC);
           NumberOfLights count = {0x01, lightCount};
           numberOfLightsEEPROM.update(0, count);
           status = true;
@@ -161,8 +155,6 @@ bool HueLightsClient::setLightCount() {
 uint8_t HueLightsClient::getLightCount() {
   NumberOfLights count;
   numberOfLightsEEPROM.read(0, count);
-  DBUG_LOG(F("Light count:"));
-  DBUG_LOG(count.numberOfLights);
   return count.numberOfLights;
 }
 
@@ -170,6 +162,8 @@ uint8_t HueLightsClient::getLightCount() {
 uint8_t HueLightsClient::createScene(const HueLightsScene& scene) {
   uint8_t index;
   scenesEEPROM.create(index, scene);
+  DBUG_LOG(F("Created scene index:"));
+  DBUG_LOG(index);
   return index;
 }
 
@@ -190,17 +184,12 @@ void HueLightsClient::getScene(uint8_t sceneID, HueLightsScene& scene) {
 }
 
 uint8_t HueLightsClient::getSceneCount() {
-  uint8_t count = scenesEEPROM.count();
-  DBUG_LOG(F("Scene count:"));
-  DBUG_LOG(count);
-  return count;
+  return scenesEEPROM.count();
 }
 
 uint8_t HueLightsClient::getCurrentSceneID() {
   HueLightsCurrentSceneID currentID;
   currentSceneIDEEPROM.read(0, currentID);
-  DBUG_LOG(F("Current Scene ID"));
-  DBUG_LOG(currentID.currentSceneID);
   return currentID.currentSceneID;
 }
 

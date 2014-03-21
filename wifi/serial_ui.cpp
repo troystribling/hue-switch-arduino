@@ -1,3 +1,4 @@
+#include <EEPROM.h>
 #include "serial_ui.h"
 #include "log.h"
 
@@ -9,7 +10,7 @@
 #define CREATE_SCENE_CMD            3
 #define UPDATE_SCENE_CMD            4
 #define REMOVE_SCENE_CMD            5
-#define NEXT_SCENE                  6
+#define NEXT_SCENE_CMD              6
 #define GET_SCENE_NAME_CMD          7
 #define SET_SCENE_NAME_CMD          8
 #define GET_SCENE_ID_CMD            9
@@ -18,9 +19,10 @@
 #define SET_CURRENT_SCENE_CMD       12
 #define GET_LIGHT_COLOR_CMD         13
 #define SET_LIGHT_COLOR_CMD         14
-#define GET_LIGHT_COUNT             15
-#define SET_LIGHT_COUNT             16
-#define GET_SCENE_COUNT             17
+#define GET_LIGHT_COUNT_CMD         15
+#define SET_LIGHT_COUNT_CMD         16
+#define GET_SCENE_COUNT_CMD         17
+#define ERASE_EEPROM_CMD            18
 
 void SerialUI::showMainMenu() {
   currentCommandID = 0;
@@ -28,8 +30,8 @@ void SerialUI::showMainMenu() {
   MENU("Terminate entry with -");
   MENU("1.  Set Light On State");
   MENU("2.  Set All Lights On State");
-  MENU("3.  Create Scence");
-  MENU("4.  Update Scence");
+  MENU("3.  Create Scene");
+  MENU("4.  Update Scene");
   MENU("5.  Remove Scene");
   MENU("6.  Next Scene");
   MENU("7.  Get Scene Name");
@@ -43,6 +45,7 @@ void SerialUI::showMainMenu() {
   MENU("15. Get Light Count");
   MENU("16. Set Light Count");
   MENU("17. Get Scene Count");
+  MENU("18. Erase EEPROM");
 }
 
 void SerialUI::processSerialInput() {
@@ -135,11 +138,12 @@ void SerialUI::showMenu() {
       case UPDATE_SCENE_CMD:
       case GET_SCENE_NAME_CMD:
       case GET_SCENE_ID_CMD:
-      case NEXT_SCENE:
+      case NEXT_SCENE_CMD:
       case GET_CURRENT_SCENE_ID_CMD:
-      case GET_LIGHT_COUNT:
-      case SET_LIGHT_COUNT:
-      case GET_SCENE_COUNT:
+      case GET_LIGHT_COUNT_CMD:
+      case SET_LIGHT_COUNT_CMD:
+      case GET_SCENE_COUNT_CMD:
+      case ERASE_EEPROM_CMD:
         processCommand();
         showMainMenu();
         break;
@@ -177,14 +181,6 @@ void SerialUI::processSetLightColor() {
   light.brightness = (uint8_t)atoi(messageBuffer[1]);
   light.saturation = (uint8_t)atoi(messageBuffer[2]);
   light.hue = (uint16_t)atoi(messageBuffer[3]);
-  DBUG_LOG(F("lightID:"));
-  DBUG_LOG(lightID, DEC);
-  DBUG_LOG(F("brightness:"));
-  DBUG_LOG(light.brightness, DEC);
-  DBUG_LOG(F("saturation:"));
-  DBUG_LOG(light.saturation, DEC);
-  DBUG_LOG(F("hue:"));
-  DBUG_LOG(light.hue, DEC);
   if (client->setLightColor(lightID, light)) {
     scene.lights[lightID].brightness = light.brightness;
     scene.lights[lightID].saturation = light.saturation;
@@ -193,12 +189,10 @@ void SerialUI::processSetLightColor() {
 }
 
 void SerialUI::processGetLightColor() {
+  DBUG_LOG(F("light color ID:bri:sat:hue:"));
   uint8_t lightID = (uint8_t)atoi(messageBuffer[0]);
-  DBUG_LOG(F("brightness:"));
   DBUG_LOG(scene.lights[lightID].brightness, DEC);
-  DBUG_LOG(F("saturation:"));
   DBUG_LOG(scene.lights[lightID].saturation, DEC);
-  DBUG_LOG(F("hue:"));
   DBUG_LOG(scene.lights[lightID].hue, DEC);
 }
 
@@ -225,16 +219,18 @@ void  SerialUI::processGetScene() {
 
 void  SerialUI::processSetSceneName() {
   char* sceneName = messageBuffer[0];
-  DBUG_LOG(F("sceneName:"));
-  DBUG_LOG(sceneName);
   strcpy(scene.name, sceneName);
 }
 
 void SerialUI::processSetCurrentScene() {
   uint8_t sceneID = (uint8_t)atoi(messageBuffer[0]);
-  DBUG_LOG(F("sceneID:"));
-  DBUG_LOG(sceneID);
   client->setCurrentScene(sceneID);
+}
+
+void SerialUI::processEraseEEPROM() {
+  for (int i = 0; i < 1024; i++) {
+    EEPROM.write(i, 0x00);
+  }
 }
 
 void SerialUI::processCommand() {
@@ -246,7 +242,8 @@ void SerialUI::processCommand() {
         processSetAllLightsOn();
         break;
       case CREATE_SCENE_CMD:
-        client->createScene(scene);
+        scene.status = 0x01;
+        sceneID = client->createScene(scene);
         break;
       case UPDATE_SCENE_CMD:
         client->updateScene(sceneID, scene);
@@ -254,18 +251,16 @@ void SerialUI::processCommand() {
       case REMOVE_SCENE_CMD:
         client->removeScene(sceneID);
         break;
-      case NEXT_SCENE:
+      case NEXT_SCENE_CMD:
         client->nextScene(sceneID, scene);
         break;
       case GET_SCENE_NAME_CMD:
-        DBUG_LOG(F("Scene Name:"));
         DBUG_LOG(scene.name);
         break;
       case SET_SCENE_NAME_CMD:
         processSetSceneName();
         break;
       case GET_SCENE_ID_CMD:
-        DBUG_LOG(F("Scene ID:"));
         DBUG_LOG(sceneID);
         break;
       case GET_SCENE_CMD:
@@ -283,14 +278,17 @@ void SerialUI::processCommand() {
       case SET_LIGHT_COLOR_CMD:
         processSetLightColor();
         break;
-      case GET_LIGHT_COUNT:
-        client->getLightCount();
+      case GET_LIGHT_COUNT_CMD:
+        DBUG_LOG(client->getLightCount());
         break;
-      case SET_LIGHT_COUNT:
+      case SET_LIGHT_COUNT_CMD:
         client->setLightCount();
         break;
-      case GET_SCENE_COUNT:
-        client->getSceneCount();
+      case GET_SCENE_COUNT_CMD:
+        DBUG_LOG(client->getSceneCount());
+        break;
+      case ERASE_EEPROM_CMD:
+        processEraseEEPROM();
         break;
       default:
         ERROR_LOG(F("(SerialUI::processCommand) Command ID is invalid:"));

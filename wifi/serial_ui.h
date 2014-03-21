@@ -36,6 +36,7 @@ private:
   void processGetScene();
   void processSetSceneName();
   void processSetCurrentScene();
+  void processEraseEEPROM();
   void processCommand();
 
 private:
