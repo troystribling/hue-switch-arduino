@@ -205,7 +205,7 @@ void  SerialUI::processGetScene() {
   DBUG_LOG(sceneID);
   DBUG_LOG(F("Scene Name:"));
   DBUG_LOG(scene.name);
-  for (int i = 0; i < client->setLightCount(); i++) {
+  for (int i = 0; i < client->getLightCount(); i++) {
     DBUG_LOG(F("lightID:"));
     DBUG_LOG(i);
     DBUG_LOG(F("brightness:"));
