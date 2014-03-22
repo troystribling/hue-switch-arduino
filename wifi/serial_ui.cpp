@@ -24,6 +24,11 @@
 #define GET_SCENE_COUNT_CMD         17
 #define ERASE_EEPROM_CMD            18
 
+SerialUI::SerialUI(HueLightsClient* _client) :
+  client(_client), currentCommandID(0), currentBufferIndex(0), currentMessageIndex(0), sceneID(0) {
+  client->getScene(sceneID, scene);
+};
+
 void SerialUI::showMainMenu() {
   currentCommandID = 0;
   MENU("\nHue Lights Main Menu");
@@ -90,7 +95,7 @@ void SerialUI::showGetSceneMenu() {
 }
 
 void SerialUI::showRemoveSceneMenu() {
-  MENU("\nSet All Lights: OnState");
+  MENU("\nRemove Scene: ID-");
 }
 
 void SerialUI::showSetCurrentSceneMenu() {
@@ -189,11 +194,12 @@ void SerialUI::processSetLightColor() {
 }
 
 void SerialUI::processGetLightColor() {
-  DBUG_LOG(F("light color ID:bri:sat:hue:"));
+  INFO_LOG(F("light color ID:bri:sat:hue:"));
   uint8_t lightID = (uint8_t)atoi(messageBuffer[0]);
-  DBUG_LOG(scene.lights[lightID].brightness, DEC);
-  DBUG_LOG(scene.lights[lightID].saturation, DEC);
-  DBUG_LOG(scene.lights[lightID].hue, DEC);
+  INFO_LOG(lightID);
+  INFO_LOG(scene.lights[lightID].brightness, DEC);
+  INFO_LOG(scene.lights[lightID].saturation, DEC);
+  INFO_LOG(scene.lights[lightID].hue, DEC);
 }
 
 void  SerialUI::processGetScene() {
@@ -201,19 +207,16 @@ void  SerialUI::processGetScene() {
   DBUG_LOG(F("sceneID:"));
   DBUG_LOG(sceneID);
   client->getScene(sceneID, scene);
-  DBUG_LOG(F("sceneID:"));
-  DBUG_LOG(sceneID);
-  DBUG_LOG(F("Scene Name:"));
-  DBUG_LOG(scene.name);
-  for (int i = 0; i < client->getLightCount(); i++) {
-    DBUG_LOG(F("lightID:"));
-    DBUG_LOG(i);
-    DBUG_LOG(F("brightness:"));
-    DBUG_LOG(scene.lights[i].brightness);
-    DBUG_LOG(F("saturation:"));
-    DBUG_LOG(scene.lights[i].saturation);
-    DBUG_LOG(F("hue:"));
-    DBUG_LOG(scene.lights[i].hue);
+  INFO_LOG(F("sceneID:Name:Status"));
+  INFO_LOG(sceneID);
+  INFO_LOG(scene.name);
+  INFO_LOG(scene.status);
+  for (int i = 1; i <= client->getLightCount(); i++) {
+    INFO_LOG(F("light color ID:bri:sat:hue:"));
+    INFO_LOG(i);
+    INFO_LOG(scene.lights[i].brightness);
+    INFO_LOG(scene.lights[i].saturation);
+    INFO_LOG(scene.lights[i].hue);
   }
 }
 
@@ -255,19 +258,19 @@ void SerialUI::processCommand() {
         client->nextScene(sceneID, scene);
         break;
       case GET_SCENE_NAME_CMD:
-        DBUG_LOG(scene.name);
+        INFO_LOG(scene.name);
         break;
       case SET_SCENE_NAME_CMD:
         processSetSceneName();
         break;
       case GET_SCENE_ID_CMD:
-        DBUG_LOG(sceneID);
+        INFO_LOG(sceneID);
         break;
       case GET_SCENE_CMD:
         processGetScene();
         break;
       case GET_CURRENT_SCENE_ID_CMD:
-        client->getCurrentSceneID();
+        INFO_LOG(client->getCurrentSceneID());
         break;
       case SET_CURRENT_SCENE_CMD:
         processSetCurrentScene();
@@ -279,13 +282,13 @@ void SerialUI::processCommand() {
         processSetLightColor();
         break;
       case GET_LIGHT_COUNT_CMD:
-        DBUG_LOG(client->getLightCount());
+        INFO_LOG(client->getLightCount());
         break;
       case SET_LIGHT_COUNT_CMD:
         client->setLightCount();
         break;
       case GET_SCENE_COUNT_CMD:
-        DBUG_LOG(client->getSceneCount());
+        INFO_LOG(client->getSceneCount());
         break;
       case ERASE_EEPROM_CMD:
         processEraseEEPROM();

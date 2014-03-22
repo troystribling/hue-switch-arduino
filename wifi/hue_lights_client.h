@@ -73,6 +73,7 @@ private:
   bool httpRequest(const __FlashStringHelper* method, String* url, String* headers, String* body);
   uint16_t readHTTPResponseStatus();
   uint8_t readHTTPLightsResponse();
+  void setCurrentSceneID(uint8_t sceneID);
 
 private:
 

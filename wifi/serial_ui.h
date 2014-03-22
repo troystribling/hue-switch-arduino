@@ -10,7 +10,7 @@ class SerialUI {
 
 public:
 
-  SerialUI(HueLightsClient* _client) : client(_client), currentCommandID(0), currentBufferIndex(0), currentMessageIndex(0), sceneID(0) {};
+  SerialUI(HueLightsClient* _client);
   void showMainMenu();
   void processSerialInput();
 

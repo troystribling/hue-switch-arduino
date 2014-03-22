@@ -164,6 +164,7 @@ uint8_t HueLightsClient::createScene(const HueLightsScene& scene) {
   scenesEEPROM.create(index, scene);
   DBUG_LOG(F("Created scene index:"));
   DBUG_LOG(index);
+  setCurrentSceneID(index);
   return index;
 }
 
@@ -194,13 +195,10 @@ uint8_t HueLightsClient::getCurrentSceneID() {
 }
 
 void HueLightsClient::setCurrentScene(uint8_t sceneID) {
-  HueLightsCurrentSceneID currentID = {0x01, sceneID};
-  currentSceneIDEEPROM.update(0, currentID);
-  DBUG_LOG(F("Current Scene ID"));
-  DBUG_LOG(currentID.currentSceneID);
+  setCurrentSceneID(sceneID);
   HueLightsScene currentScene;
   scenesEEPROM.read(sceneID, currentScene);
-  for (uint8_t i = 0; i < getLightCount(); i++) {
+  for (uint8_t i = 1; i <= getLightCount(); i++) {
     setLightColor(i, currentScene.lights[i]);
   }
 }
@@ -335,5 +333,12 @@ uint8_t HueLightsClient::readHTTPLightsResponse() {
     }
   }
   return count;
+}
+
+void  HueLightsClient::setCurrentSceneID(uint8_t sceneID) {
+  HueLightsCurrentSceneID currentID = {0x01, sceneID};
+  currentSceneIDEEPROM.update(0, currentID);
+  DBUG_LOG(F("Current Scene ID"));
+  DBUG_LOG(currentID.currentSceneID);
 }
 
