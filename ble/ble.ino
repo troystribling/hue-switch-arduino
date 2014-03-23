@@ -50,6 +50,7 @@ void addBond() {
 
 void setup() {
   Serial.begin(9600);
+  DBUG_FREE_MEMORY;
   peripheral.begin();
   pinMode(CLEAR_BONDS_PIN, INPUT);
   pinMode(ADD_BOND_PIN, INPUT);

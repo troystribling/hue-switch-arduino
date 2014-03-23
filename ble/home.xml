@@ -201,6 +201,31 @@
         </Characteristic>
     </Service>
     <Service Type="local" PrimaryService="true">
+        <Name>Epoc Time</Name>
+        <Uuid BaseUUID="2f0a000069aaf3163e784194989a6c1a" BaseUUIDName="gnos.us Base UUID">0023</Uuid>
+        <Characteristic>
+            <Name>Epoc Time</Name>
+            <Uuid BaseUUID="2f0a000069aaf3163e784194989a6c1a" BaseUUIDName="gnos.us Base UUID">0026</Uuid>
+            <DefaultValue>532F0715</DefaultValue>
+            <UsePresentationFormat>0</UsePresentationFormat>
+            <MaxDataLength>4</MaxDataLength>
+            <AttributeLenType>1</AttributeLenType>
+            <ForceOpen>false</ForceOpen>
+            <Properties>
+                <WriteWithoutResponse>false</WriteWithoutResponse>
+                <Write>true</Write>
+                <Notify>true</Notify>
+                <Indicate>false</Indicate>
+                <Broadcast>false</Broadcast>
+            </Properties>
+            <SetPipe>true</SetPipe>
+            <AckIsAuto>false</AckIsAuto>
+            <PresentationFormatDescriptor Value="0000" Exponent="0" Format="1" NameSpace="01" Unit="0000"/>
+            <PeriodForReadingThisCharacteristic>0</PeriodForReadingThisCharacteristic>
+            <PeriodForProperties/>
+        </Characteristic>
+    </Service>
+    <Service Type="local" PrimaryService="true">
         <Name>Device Information</Name>
         <Uuid>180a</Uuid>
         <Characteristic>
@@ -260,7 +285,7 @@
         <MinimumKeySize>7</MinimumKeySize>
         <MaximumKeySize>16</MaximumKeySize>
         <AdvertisingDataBondedBitmap>0</AdvertisingDataBondedBitmap>
-        <AdvertisingDataGeneralBitmap>50</AdvertisingDataGeneralBitmap>
+        <AdvertisingDataGeneralBitmap>5a</AdvertisingDataGeneralBitmap>
         <AdvertisingDataBrodcastBitmap>0</AdvertisingDataBrodcastBitmap>
         <AdvertisingDataBondedScanResponseBitmap>0</AdvertisingDataBondedScanResponseBitmap>
         <AdvertisingDataGeneralScanResponseBitmap>0</AdvertisingDataGeneralScanResponseBitmap>
@@ -278,6 +303,9 @@
         <TimeoutMultipler>65535</TimeoutMultipler>
         <AddServiceUpdateCharacteristic>false</AddServiceUpdateCharacteristic>
         <AddServiceUpdateCharacteristicPipe>false</AddServiceUpdateCharacteristicPipe>
+        <ServiceToAdvertise>
+            <Uuid BaseUUID="2f0a000069aaf3163e784194989a6c1a" BaseUUIDName="gnos.us Base UUID">0021</Uuid>
+        </ServiceToAdvertise>
         <CustomAdTypes>
             <AdType index="1">
                 <Type>19</Type>
