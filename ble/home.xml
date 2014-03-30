@@ -29,6 +29,31 @@
         </Characteristic>
     </Service>
     <Service Type="local" PrimaryService="true">
+        <Name>Epoc Time</Name>
+        <Uuid BaseUUID="2f0a000069aaf3163e784194989a6c1a" BaseUUIDName="gnos.us Base UUID">0023</Uuid>
+        <Characteristic>
+            <Name>Epoc Time</Name>
+            <Uuid BaseUUID="2f0a000069aaf3163e784194989a6c1a" BaseUUIDName="gnos.us Base UUID">0026</Uuid>
+            <DefaultValue>532F0715</DefaultValue>
+            <UsePresentationFormat>0</UsePresentationFormat>
+            <MaxDataLength>4</MaxDataLength>
+            <AttributeLenType>1</AttributeLenType>
+            <ForceOpen>false</ForceOpen>
+            <Properties>
+                <WriteWithoutResponse>false</WriteWithoutResponse>
+                <Write>true</Write>
+                <Notify>true</Notify>
+                <Indicate>false</Indicate>
+                <Broadcast>false</Broadcast>
+            </Properties>
+            <SetPipe>true</SetPipe>
+            <AckIsAuto>false</AckIsAuto>
+            <PresentationFormatDescriptor Value="0000" Exponent="0" Format="1" NameSpace="01" Unit="0000"/>
+            <PeriodForReadingThisCharacteristic>0</PeriodForReadingThisCharacteristic>
+            <PeriodForProperties/>
+        </Characteristic>
+    </Service>
+    <Service Type="local" PrimaryService="true">
         <Name>Hue Lights</Name>
         <Uuid BaseUUID="2f0a000069aaf3163e784194989a6c1a" BaseUUIDName="gnos.us Base UUID">0021</Uuid>
         <Characteristic>
@@ -179,7 +204,7 @@
             <PeriodForProperties/>
         </Characteristic>
         <Characteristic>
-            <Name>Hue Switches</Name>
+            <Name>Hue Status</Name>
             <Uuid BaseUUID="2f0a000069aaf3163e784194989a6c1a" BaseUUIDName="gnos.us Base UUID">0027</Uuid>
             <DefaultValue>0</DefaultValue>
             <UsePresentationFormat>0</UsePresentationFormat>
@@ -188,8 +213,8 @@
             <ForceOpen>false</ForceOpen>
             <Properties>
                 <WriteWithoutResponse>false</WriteWithoutResponse>
-                <Write>true</Write>
-                <Notify>false</Notify>
+                <Write>false</Write>
+                <Notify>true</Notify>
                 <Indicate>false</Indicate>
                 <Broadcast>false</Broadcast>
             </Properties>
@@ -199,22 +224,18 @@
             <PeriodForReadingThisCharacteristic>0</PeriodForReadingThisCharacteristic>
             <PeriodForProperties/>
         </Characteristic>
-    </Service>
-    <Service Type="local" PrimaryService="true">
-        <Name>Epoc Time</Name>
-        <Uuid BaseUUID="2f0a000069aaf3163e784194989a6c1a" BaseUUIDName="gnos.us Base UUID">0023</Uuid>
         <Characteristic>
-            <Name>Epoc Time</Name>
-            <Uuid BaseUUID="2f0a000069aaf3163e784194989a6c1a" BaseUUIDName="gnos.us Base UUID">0026</Uuid>
-            <DefaultValue>532F0715</DefaultValue>
+            <Name>Hue Switch</Name>
+            <Uuid>0028</Uuid>
+            <DefaultValue>0</DefaultValue>
             <UsePresentationFormat>0</UsePresentationFormat>
-            <MaxDataLength>4</MaxDataLength>
+            <MaxDataLength>1</MaxDataLength>
             <AttributeLenType>1</AttributeLenType>
             <ForceOpen>false</ForceOpen>
             <Properties>
                 <WriteWithoutResponse>false</WriteWithoutResponse>
                 <Write>true</Write>
-                <Notify>true</Notify>
+                <Notify>false</Notify>
                 <Indicate>false</Indicate>
                 <Broadcast>false</Broadcast>
             </Properties>

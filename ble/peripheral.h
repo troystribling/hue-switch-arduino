@@ -15,6 +15,7 @@ public:
 protected:
 
   void didReceiveData(uint8_t characteristicId, uint8_t* data, uint8_t size);
+  void didReceiveCommandResponse(uint8_t commandId, uint8_t* data, uint8_t size);
   void didDisconnect();
   void didTimeout();
   void didConnect();
@@ -23,6 +24,15 @@ protected:
   void didReceivePipeStatusChange();
   void didBond();
   bool doTimingChange();
+
+private:
+
+  void setLocation(uint8_t* data, uint8_t size);
+  void setSwitch(uint8_t* data, uint8_t size);
+  void setSceneName(uint8_t* data, uint8_t size);
+  void setCurrentSceneId(uint8_t* data, uint8_t size);
+  void setLightColor(uint8_t* data, uint8_t size);
+  void setCommand(uint8_t* data, uint8_t size);
 
 };
 
