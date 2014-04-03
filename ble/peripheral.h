@@ -2,12 +2,21 @@
 #define _PERIPHERAL_H_
 
 #include "blue_cap_peripheral.h"
+#include "eeprom_objects.h"
+
+// eeprom storage objects
+#define NUMBER_OF_STATE_OBJECTS_OFFSET           0
+#define MAX_NUMBER_OF_STATE_OBJECTS              1
+struct StateObject {
+  uint8_t status;
+  uint8_t switchValue;
+};
 
 class Peripheral : public BlueCapBondedPeripheral {
 
 public:
 
-  Peripheral(uint8_t _reqn, uint8_t _rdyn, uint16_t _eepromOffset, uint8_t _maxBonds);
+  Peripheral(uint8_t _reqn, uint8_t _rdyn, uint8_t _maxBonds);
 
   void begin();
   void loop();
@@ -34,6 +43,11 @@ private:
   void setLightColor(uint8_t* data, uint8_t size);
   void setCommand(uint8_t* data, uint8_t size);
 
+  void setState();
+
+private:
+
+  EEPROMObject<StateObject>     stateObjectEEPROM;
 };
 
 #endif

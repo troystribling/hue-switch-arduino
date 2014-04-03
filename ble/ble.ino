@@ -8,7 +8,6 @@
 
 #define REQN_PIN              9
 #define RDYN_PIN              8
-#define EEPROM_OFFSET         0
 #define CLEAR_BONDS_PIN       6
 #define ADD_BOND_PIN          7
 #define MAX_BONDS             4
@@ -17,7 +16,7 @@
 uint16_t addBondCount         = 0;
 bool updateAddBondCount       = false;
 
-Peripheral peripheral(REQN_PIN, RDYN_PIN, EEPROM_OFFSET, MAX_BONDS);
+Peripheral peripheral(REQN_PIN, RDYN_PIN, MAX_BONDS);
 
 void clearBond() {
   if (digitalRead(CLEAR_BONDS_PIN) == HIGH) {
