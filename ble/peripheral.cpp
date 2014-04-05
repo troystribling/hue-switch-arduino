@@ -117,10 +117,10 @@ void Peripheral::setSwitch(uint8_t* data, uint8_t size) {
   if (sendAck(PIPE_HUE_LIGHTS_HUE_SWITCH_RX_ACK)) {
     StateObject stateObject;
     stateObjectEEPROM.read(0, stateObject);
-    memcpy(&stateObject.switchValue, data, 1);
+    memcpy(&(stateObject.switchValue), data, 1);
     stateObjectEEPROM.update(0, stateObject);
     DBUG_LOG(F("Peripheral::setSwitch::switchValue:"));
-    DBUG_LOG(stateObject.switchValue);
+    DBUG_LOG(stateObject.switchValue, HEX);
   }
 }
 
@@ -140,6 +140,8 @@ void Peripheral::setCommand(uint8_t* data, uint8_t size) {
 void Peripheral::setState() {
   StateObject stateObject;
   stateObjectEEPROM.read(0, stateObject);
-  sendData(PIPE_HUE_LIGHTS_HUE_SWITCH_TX, &stateObject.switchValue, PIPE_HUE_LIGHTS_HUE_SWITCH_TX_MAX_SIZE);
+  DBUG_LOG(F("Peripheral::setState (status, value)"));
+  DBUG_LOG(stateObject.status);
+  DBUG_LOG(stateObject.switchValue);
   setData(PIPE_HUE_LIGHTS_HUE_SWITCH_SET, &stateObject.switchValue, PIPE_HUE_LIGHTS_HUE_SWITCH_SET_MAX_SIZE);
 }
