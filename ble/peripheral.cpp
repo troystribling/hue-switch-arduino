@@ -18,7 +18,6 @@ Peripheral::Peripheral(uint8_t _reqn, uint8_t _rdyn, uint8_t _maxBonds) :
 void Peripheral::begin() {
   DBUG_LOG(F("Peripheral::begin"));
   BlueCapBondedPeripheral::begin();
-  setState();
 }
 
 void Peripheral::loop() {
@@ -95,6 +94,7 @@ void Peripheral::didConnect() {
 }
 
 void Peripheral::didStartAdvertising() {
+    setState();
 }
 
 void Peripheral::didReceiveError(uint8_t pipe, uint8_t errorCode) {
@@ -114,10 +114,10 @@ void Peripheral::setLocation(uint8_t* data, uint8_t size) {
 }
 
 void Peripheral::setSwitch(uint8_t* data, uint8_t size) {
+  StateObject stateObject;
+  stateObjectEEPROM.read(0, stateObject);
+  memcpy(&(stateObject.switchValue), data, 1);
   if (sendAck(PIPE_HUE_LIGHTS_HUE_SWITCH_RX_ACK)) {
-    StateObject stateObject;
-    stateObjectEEPROM.read(0, stateObject);
-    memcpy(&(stateObject.switchValue), data, 1);
     stateObjectEEPROM.update(0, stateObject);
     DBUG_LOG(F("Peripheral::setSwitch::switchValue:"));
     DBUG_LOG(stateObject.switchValue, HEX);
