@@ -1,6 +1,7 @@
 // ble.ino
 #include <SPI.h>
 #include <EEPROM.h>
+#include <Wire.h>
 #include "aci.h"
 #include "utils.h"
 #include "blue_cap_peripheral.h"
