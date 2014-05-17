@@ -1,11 +1,11 @@
 #include <Wire.h>
-#include "arduino_i2c_master.h"
+#include "homei2c_master.h"
 
-ArduinoI2CMaster::begin() {
+HomeI2CMaster::begin() {
   Wire.begin();
 }
 
-ArduinoI2CMaster::writeAndReceiveResponse(unit8_t address, I2CMessage& message, uint8_t requestSize, uint8_t responseSize) {
+HomeI2CMaster::writeAndReceiveResponse(unit8_t address, I2CMessage& message, uint8_t requestSize, uint8_t responseSize) {
   uint8_t receivedBytes = 0;
   Wire.beginTransmission(address):
   for(uint8_t i = 0; i < requestSize; i++) {
