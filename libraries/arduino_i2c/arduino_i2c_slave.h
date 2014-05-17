@@ -5,8 +5,18 @@
 
 class ArduinoI2CSlave {
 
-  ArduinoI2CSlave(){};
+public:
+
+  ArduinoI2CSlave(uint8_t address) : address(address){};
   ~ArduinoI2CSlave(){};
+
+  void begin();
+
+private:
+
+  uint8_t address;
+
+private:
 
 };
 
