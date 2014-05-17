@@ -4,6 +4,7 @@
 #include <Arduino.h>
 
 #define MAX_I2C_MESSAGE_SIZE                    25
+#define HUE_LIGHTS_I2C_ADDRESS                  4
 
 struct I2CMessage {
   uint8_t messageID;

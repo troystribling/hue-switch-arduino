@@ -16,7 +16,7 @@ HueLightsClient client(WEB_HOST, WEB_ROOT);
   #include "i2c_message.h"
   #include "wifi_i2c_slave.h"
   const uint8_t address = 4;
-  WifiI2CSlave i2cSlave(&client, address);
+  WifiI2CSlave i2cSlave(&client, HUE_LIGHTS_I2C_ADDRESS);
 #endif
 
 void setup() {

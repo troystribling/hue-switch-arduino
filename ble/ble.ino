@@ -6,6 +6,8 @@
 #include "utils.h"
 #include "blue_cap_peripheral.h"
 #include "peripheral.h"
+#include "i2c_message.h"
+#include "home_i2c_master.h"
 
 #define REQN_PIN              9
 #define RDYN_PIN              8

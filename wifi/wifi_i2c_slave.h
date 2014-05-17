@@ -1,8 +1,8 @@
 #ifndef _ARDUINO_I2C_SLAVE_H
 #define _ARDUINO_I2C_SLAVE_H
 
-#include <Wire.h>
-#include "hue_lights_client.h"
+class WifiI2CSlave;
+
 #include "i2c_message.h"
 
 class WifiI2CSlave {
@@ -15,7 +15,7 @@ public:
   void begin();
   uint8_t* messageBuffer(){return (uint8_t*)&responseMessage;};
   uint8_t messageBufferSize(){return responseMessageSize;};
-  void procesRequest(I2CMessage& requestMessage, uint8_t requestSize);
+  void procesRequest(I2CMessage& requestMessage);
 
 private:
 
@@ -29,16 +29,16 @@ private:
 
 private:
 
-  void processStatus(I2CMessage& requestMessage, uint8_t requestSize);
-  void processSetLightOn(I2CMessage& requestMessage, uint8_t requestSize);
-  void processSetAllLightsOn(I2CMessage& requestMessage, uint8_t requestSize);
-  void processSetLightColor(I2CMessage& requestMessage, uint8_t requestSize);
-  void processGetLightColor(I2CMessage& requestMessage, uint8_t requestSize);
-  void processGetScene(I2CMessage& requestMessage, uint8_t requestSize);
-  void processSetSceneName(I2CMessage& requestMessage, uint8_t requestSize);
-  void processSetCurrentScene(I2CMessage& requestMessage, uint8_t requestSize);
-  void processEraseEEPROM(I2CMessage& requestMessage, uint8_t requestSize);
-  void processCommand(I2CMessage& requestMessage, uint8_t requestSize);
+  void processStatus(I2CMessage& requestMessage);
+  void processSetLightOn(I2CMessage& requestMessage);
+  void processSetAllLightsOn(I2CMessage& requestMessage);
+  void processSetLightColor(I2CMessage& requestMessage);
+  void processGetLightColor(I2CMessage& requestMessage);
+  void processGetScene(I2CMessage& requestMessage);
+  void processSetSceneName(I2CMessage& requestMessage);
+  void processSetCurrentScene(I2CMessage& requestMessage);
+  void processEraseEEPROM(I2CMessage& requestMessage);
+  void processCommand(I2CMessage& requestMessage);
 
 };
 
