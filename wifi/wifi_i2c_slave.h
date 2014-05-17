@@ -9,12 +9,13 @@ class WifiI2CSlave {
 
 public:
 
-  WifiI2CSlave(HueLightsClient* a_client, uint8_t address) : address(address), client(a_client);
+  WifiI2CSlave(HueLightsClient* a_client, uint8_t address);
   ~WifiI2CSlave(){};
 
   void begin();
-  uint8_t* messageBuffer(){return (uint8_t*)responseMessageBuffer};
-  uint8_t messageBufferSize(){return responseMessageSize};
+  uint8_t* messageBuffer(){return (uint8_t*)&responseMessage;};
+  uint8_t messageBufferSize(){return responseMessageSize;};
+  void procesRequest(I2CMessage& requestMessage, uint8_t requestSize);
 
 private:
 
@@ -22,13 +23,12 @@ private:
   HueLightsClient*  client;
   HueLightsScene    scene;
   uint8_t           sceneID;
-  I2CMessage        responseMessageBuffer;
+  I2CMessage        responseMessage;
   uint8_t           responseMessageSize;
 
 
 private:
 
-  void procesRequest(I2CMessage& requestMessage, uint8_t requestSize);
   void processStatus(I2CMessage& requestMessage, uint8_t requestSize);
   void processSetLightOn(I2CMessage& requestMessage, uint8_t requestSize);
   void processSetAllLightsOn(I2CMessage& requestMessage, uint8_t requestSize);

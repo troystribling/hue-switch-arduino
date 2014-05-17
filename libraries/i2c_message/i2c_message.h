@@ -1,11 +1,13 @@
 #ifndef _I2C_MESSAGE_H_
 #define _I2C_MESSAGE_H_
 
+#include <Arduino.h>
+
 #define MAX_I2C_MESSAGE_SIZE                    25
 
 struct I2CMessage {
-  uint8_t messageId;
-  uint8_t buffer[MAX_MESSAGE_SIZE];
+  uint8_t messageID;
+  uint8_t buffer[MAX_I2C_MESSAGE_SIZE];
 };
 
 #define HUE_LIGHTS_LIGHT_ON_CMD                 1

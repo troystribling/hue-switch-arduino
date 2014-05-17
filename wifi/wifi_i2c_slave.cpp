@@ -13,7 +13,7 @@ void receiveEvent(int _numBytes) {
   uint8_t bytesReceived = 0;
   while(Wire.available()) {
     if (bytesReceived == 0) {
-      message.messageId = Wire.read();
+      message.messageID = Wire.read();
     } else {
       if (bytesReceived < MAX_I2C_MESSAGE_SIZE) {
         message.buffer[bytesReceived] = Wire.read();
@@ -25,13 +25,13 @@ void receiveEvent(int _numBytes) {
 }
 
 void requestEvent() {
-  uint8_t* message = i2cSlave->messageBuffer()
+  uint8_t* message = i2cSlave->messageBuffer();
   for (uint8_t i = 0; i < i2cSlave->messageBufferSize(); i++) {
     Wire.write(message[i]);
   }
 }
 
-WifiI2CSlave::WifiI2CSlave(HueLightsClient* a_client, uint8_t address) {
+WifiI2CSlave::WifiI2CSlave(HueLightsClient* a_client, uint8_t address) : address(address), client(a_client) {
   i2cSlave = this;
 }
 
@@ -42,7 +42,7 @@ void WifiI2CSlave::begin() {
 }
 
 void  WifiI2CSlave::procesRequest(I2CMessage& requestMessage, uint8_t requestSize) {
-  switch (requestMessage.messageId) {
+  switch (requestMessage.messageID) {
       case HUE_LIGHTS_LIGHT_ON_CMD:
         processSetLightOn(requestMessage, requestSize);
         break;
@@ -98,16 +98,16 @@ void  WifiI2CSlave::procesRequest(I2CMessage& requestMessage, uint8_t requestSiz
       case HUE_LIGHTS_ERASE_EEPROM_CMD:
         processEraseEEPROM(requestMessage, requestSize);
         break;
-      case: WIFI_STATUS_CMD:
+      case WIFI_STATUS_CMD:
+        responseMessage.messageID = WIFI_STATUS_CMD;
+        responseMessage.buffer[0] = client->lanConnected();
+        responseMessageSize = 2;
         break;
       default:
         ERROR_LOG(F("(WifiI2CSlave::processCommand) Command ID is invalid:"));
-        ERROR_LOG(requestMessage.messageId, DEC);
+        ERROR_LOG(requestMessage.messageID, DEC);
         break;
   }
-}
-
-void WifiI2CSlave::processWifiStatus(I2CMessage& requestMessage, uint8_t requestSize) {
 }
 
 void WifiI2CSlave::processSetLightOn(I2CMessage& requestMessage, uint8_t requestSize) {
@@ -170,7 +170,7 @@ void WifiI2CSlave::processGetScene(I2CMessage& requestMessage, uint8_t requestSi
 }
 
 void WifiI2CSlave::processSetSceneName(I2CMessage& requestMessage, uint8_t requestSize) {
-  char* sceneName = messageBuffer[0];
+  char* sceneName = (char*)requestMessage.buffer;
   strcpy(scene.name, sceneName);
 }
 
