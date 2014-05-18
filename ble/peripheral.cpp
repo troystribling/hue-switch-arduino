@@ -1,5 +1,6 @@
 #include "utils.h"
 #include "blue_cap_peripheral.h"
+#include "home_i2c_master.h"
 #include "peripheral.h"
 #include "services.h"
 
@@ -8,8 +9,9 @@
 static services_pipe_type_mapping_t services_pipe_type_mapping[NUMBER_OF_PIPES] = SERVICES_PIPE_TYPE_MAPPING_CONTENT;
 static hal_aci_data_t setup_msgs[NB_SETUP_MESSAGES] PROGMEM = SETUP_MESSAGES_CONTENT;
 
-Peripheral::Peripheral(uint8_t _reqn, uint8_t _rdyn, uint8_t _maxBonds) :
+Peripheral::Peripheral(uint8_t _reqn, uint8_t _rdyn, uint8_t _maxBonds, uint16_t _updatePeriod) :
   BlueCapBondedPeripheral(_reqn, _rdyn, EEPROM_OFFSET, _maxBonds),
+  updatePeriod(_updatePeriod),
   stateObjectEEPROM(EEPROMObject<StateObject>(NUMBER_OF_STATE_OBJECTS_OFFSET, MAX_NUMBER_OF_STATE_OBJECTS)) {
   setServicePipeTypeMapping(services_pipe_type_mapping, NUMBER_OF_PIPES);
   setSetUpMessages(setup_msgs, NB_SETUP_MESSAGES);
@@ -21,6 +23,10 @@ void Peripheral::begin() {
 }
 
 void Peripheral::loop() {
+  if (millis() % updatePeriod == 0) {
+    DBUG_LOG(updatePeriod);
+    i2cMaster->wifiStatus();
+  }
   BlueCapBondedPeripheral::loop();
 }
 

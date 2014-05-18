@@ -1,12 +1,18 @@
 #ifndef _PERIPHERAL_H_
 #define _PERIPHERAL_H_
 
+class HomeI2CMaster;
+
 #include "blue_cap_peripheral.h"
 #include "eeprom_objects.h"
 
+// defaults
+#define DEFAULT_UPDATE_PERIOD                   10000
+
 // eeprom storage objects
-#define NUMBER_OF_STATE_OBJECTS_OFFSET           0
-#define MAX_NUMBER_OF_STATE_OBJECTS              1
+#define NUMBER_OF_STATE_OBJECTS_OFFSET          0
+#define MAX_NUMBER_OF_STATE_OBJECTS             1
+
 struct StateObject {
   uint8_t status;
   uint8_t switchValue;
@@ -16,10 +22,12 @@ class Peripheral : public BlueCapBondedPeripheral {
 
 public:
 
-  Peripheral(uint8_t _reqn, uint8_t _rdyn, uint8_t _maxBonds);
+  Peripheral(uint8_t _reqn, uint8_t _rdyn, uint8_t _maxBonds, uint16_t _updatePeriod = DEFAULT_UPDATE_PERIOD);
 
   void begin();
   void loop();
+
+  void setI2CMaster(HomeI2CMaster* _i2cMaster) {i2cMaster = _i2cMaster;};
 
 protected:
 
@@ -47,7 +55,9 @@ private:
 
 private:
 
+  uint16_t                      updatePeriod;
   EEPROMObject<StateObject>     stateObjectEEPROM;
+  HomeI2CMaster*                i2cMaster;
 };
 
 #endif

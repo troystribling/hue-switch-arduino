@@ -20,6 +20,7 @@ uint16_t addBondCount         = 0;
 bool updateAddBondCount       = false;
 
 Peripheral peripheral(REQN_PIN, RDYN_PIN, MAX_BONDS);
+HomeI2CMaster i2cMaster(&peripheral);
 
 void clearBond() {
   if (digitalRead(CLEAR_BONDS_PIN) == HIGH) {
@@ -54,6 +55,8 @@ void setup() {
   Serial.begin(9600);
   DBUG_FREE_MEMORY;
   peripheral.begin();
+  peripheral.setI2CMaster(&i2cMaster);
+  i2cMaster.begin();
   pinMode(CLEAR_BONDS_PIN, INPUT);
   pinMode(ADD_BOND_PIN, INPUT);
   INFO_LOG(F("To delete the bond stored in EEPROM, connect pin 6 to 5v and reset."));

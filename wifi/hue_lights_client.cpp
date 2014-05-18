@@ -129,6 +129,7 @@ bool HueLightsClient::setLightColor(uint8_t lightID, const HueLight& light) {
 }
 
 bool HueLightsClient::setLightCount() {
+  DBUG_LOG(F("Light Count"));
   bool status = false;
   uint8_t count = 0;
   String url = String(siteRoot);

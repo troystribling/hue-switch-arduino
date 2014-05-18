@@ -31,4 +31,7 @@ struct I2CMessage {
 #define HUE_LIGHTS_ERASE_EEPROM_CMD             18
 #define WIFI_STATUS_CMD                         19
 
+#define WIFI_STATUS_REQUEST_SIZE                0
+#define WIFI_STATUS_RESPONSE_SIZE               1
+
 #endif

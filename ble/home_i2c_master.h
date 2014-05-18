@@ -16,6 +16,9 @@ public:
   void writeAndReceiveResponse(uint8_t address, I2CMessage& message, uint8_t requestSize, uint8_t responseSize);
   void processResponse(I2CMessage& message);
 
+  void wifiStatus();
+  void wifiStatusResponse(I2CMessage& message);
+
 private:
 
   Peripheral* peripheral;

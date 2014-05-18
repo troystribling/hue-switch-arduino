@@ -11,11 +11,14 @@ extern "C" {
 }
 
 void receiveEvent(int _numBytes) {
+  DBUG_LOG(F("Received Event"));
   I2CMessage message;
   uint8_t bytesReceived = 0;
   while(Wire.available()) {
     if (bytesReceived == 0) {
       message.messageID = Wire.read();
+      DBUG_LOG(F("Message ID"));
+      DBUG_LOG(message.messageID);
     } else {
       if (bytesReceived < MAX_I2C_MESSAGE_SIZE) {
         message.buffer[bytesReceived] = Wire.read();
@@ -27,9 +30,10 @@ void receiveEvent(int _numBytes) {
 }
 
 void requestEvent() {
-  uint8_t* message = i2cSlave->messageBuffer();
+  I2CMessage message = i2cSlave->messageBuffer();
+  Wire.write(message.messageID);
   for (uint8_t i = 0; i < i2cSlave->messageBufferSize(); i++) {
-    Wire.write(message[i]);
+    Wire.write(message.buffer[i]);
   }
 }
 
@@ -101,9 +105,10 @@ void  WifiI2CSlave::procesRequest(I2CMessage& requestMessage) {
         processEraseEEPROM(requestMessage);
         break;
       case WIFI_STATUS_CMD:
+        DBUG_LOG(F("WIFI_STATUS_CMD"));
         responseMessage.messageID = WIFI_STATUS_CMD;
         responseMessage.buffer[0] = client->lanConnected();
-        responseMessageSize = 2;
+        responseMessageSize = WIFI_STATUS_RESPONSE_SIZE;
         break;
       default:
         ERROR_LOG(F("(WifiI2CSlave::processCommand) Command ID is invalid:"));
