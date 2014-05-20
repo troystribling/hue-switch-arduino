@@ -6,11 +6,11 @@
 static WifiI2CSlave* i2cSlave = NULL;
 
 extern "C" {
-  void receiveEvent(int _numBytes);
+  void receiveEvent(int numBytes);
   void requestEvent();
 }
 
-void receiveEvent(int _numBytes) {
+void receiveEvent(int numBytes) {
   DBUG_LOG(F("Received Event"));
   I2CMessage message;
   uint8_t bytesReceived = 0;
@@ -20,19 +20,24 @@ void receiveEvent(int _numBytes) {
       DBUG_LOG(F("Message ID"));
       DBUG_LOG(message.messageID);
     } else {
-      if (bytesReceived < MAX_I2C_MESSAGE_SIZE) {
-        message.buffer[bytesReceived] = Wire.read();
-        bytesReceived++;
+      if (bytesReceived <= MAX_I2C_MESSAGE_SIZE) {
+        message.buffer[bytesReceived-1] = Wire.read();
       }
     }
+    bytesReceived++;
   }
   i2cSlave->procesRequest(message);
 }
 
 void requestEvent() {
+  DBUG_LOG(F("Received request: msgID"));
   I2CMessage message = i2cSlave->messageBuffer();
+  DBUG_LOG(message.messageID);
   Wire.write(message.messageID);
-  for (uint8_t i = 0; i < i2cSlave->messageBufferSize(); i++) {
+  for (uint8_t i = 0; i < i2cSlave->messageBufferSize() - 1; i++) {
+    DBUG_LOG("Message: byte, val");
+    DBUG_LOG(i);
+    DBUG_LOG(message.buffer[i]);
     Wire.write(message.buffer[i]);
   }
 }

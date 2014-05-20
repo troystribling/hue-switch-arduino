@@ -8,7 +8,7 @@ void HomeI2CMaster::begin() {
 }
 
 void HomeI2CMaster::writeAndReceiveResponse(uint8_t address, I2CMessage& message, uint8_t requestSize, uint8_t responseSize) {
-  uint8_t receivedBytes = 0;
+  uint8_t bytesReceived = 0;
   DBUG_LOG(F("Begin transmission of message"));
   DBUG_LOG(message.messageID);
   Wire.beginTransmission(address);
@@ -17,21 +17,23 @@ void HomeI2CMaster::writeAndReceiveResponse(uint8_t address, I2CMessage& message
     Wire.write(message.buffer[i]);
   }
   Wire.endTransmission();
+  DBUG_LOG(F("Receiving response of size"));
+  DBUG_LOG(responseSize);
   Wire.requestFrom(address, responseSize);
-  DBUG_LOG(F("Receiving response"));
   while (Wire.available()) {
-    if (receivedBytes == 0) {
+    if (bytesReceived == 0) {
       message.messageID = Wire.read();
       DBUG_LOG(F("Message ID"));
       DBUG_LOG(message.messageID);
     } else {
-      message.buffer[receivedBytes] = Wire.read();
-      DBUG_LOG(F("Data received"));
-      DBUG_LOG(message.buffer[receivedBytes]);
-      receivedBytes++;
-      DBUG_LOG(F("Received bytes"));
-      DBUG_LOG(receivedBytes);
+      if (bytesReceived <= MAX_I2C_MESSAGE_SIZE) {
+        message.buffer[bytesReceived-1] = Wire.read();
+        DBUG_LOG(F("Data received: byte, val"));
+        DBUG_LOG(bytesReceived-1);
+        DBUG_LOG(message.buffer[bytesReceived-1]);
+      }
     }
+    bytesReceived++;
   }
   processResponse(message);
 }
