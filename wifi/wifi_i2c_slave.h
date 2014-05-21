@@ -13,8 +13,8 @@ public:
   ~WifiI2CSlave(){};
 
   void begin();
-  I2CMessage& messageBuffer(){return responseMessage;};
-  uint8_t messageBufferSize(){return responseMessageSize;};
+  uint8_t* messageBuffer(){return (uint8_t*)&responseMessage;};
+  size_t messageBufferSize(){return responseMessageSize;};
   void procesRequest(I2CMessage& requestMessage);
 
 private:

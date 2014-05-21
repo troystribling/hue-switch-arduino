@@ -7,15 +7,12 @@ void HomeI2CMaster::begin() {
   Wire.begin();
 }
 
-void HomeI2CMaster::writeAndReceiveResponse(uint8_t address, I2CMessage& message, uint8_t requestSize, uint8_t responseSize) {
+void HomeI2CMaster::writeAndReceiveResponse(uint8_t address, I2CMessage& message, size_t requestSize, size_t responseSize) {
   uint8_t bytesReceived = 0;
   DBUG_LOG(F("Begin transmission of message"));
   DBUG_LOG(message.messageID);
   Wire.beginTransmission(address);
-  Wire.write(message.messageID);
-  for(uint8_t i = 0; i < requestSize; i++) {
-    Wire.write(message.buffer[i]);
-  }
+  Wire.write((uint8_t*)&message, responseSize);
   Wire.endTransmission();
   DBUG_LOG(F("Receiving response of size"));
   DBUG_LOG(responseSize);
@@ -30,7 +27,7 @@ void HomeI2CMaster::writeAndReceiveResponse(uint8_t address, I2CMessage& message
         message.buffer[bytesReceived-1] = Wire.read();
         DBUG_LOG(F("Data received: byte, val"));
         DBUG_LOG(bytesReceived-1);
-        DBUG_LOG(message.buffer[bytesReceived-1]);
+        DBUG_LOG(message.buffer[bytesReceived-1], HEX);
       }
     }
     bytesReceived++;
