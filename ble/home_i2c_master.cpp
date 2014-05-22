@@ -2,6 +2,7 @@
 #include "utils.h"
 #include "peripheral.h"
 #include "home_i2c_master.h"
+#include "services.h"
 
 void HomeI2CMaster::begin() {
   Wire.begin();
@@ -91,4 +92,6 @@ void  HomeI2CMaster::wifiStatus() {
 }
 
 void HomeI2CMaster::wifiStatusResponse(I2CMessage& message) {
+  peripheral->sendData(PIPE_HUE_LIGHTS_HUE_STATUS_TX, message.buffer, PIPE_HUE_LIGHTS_HUE_STATUS_TX_MAX_SIZE);
+  peripheral->setData(PIPE_HUE_LIGHTS_HUE_STATUS_SET, message.buffer, PIPE_HUE_LIGHTS_HUE_STATUS_SET_MAX_SIZE);
 }
