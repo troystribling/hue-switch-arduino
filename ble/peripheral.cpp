@@ -100,7 +100,7 @@ void Peripheral::didConnect() {
 }
 
 void Peripheral::didStartAdvertising() {
-    setState();
+    initState();
 }
 
 void Peripheral::didReceiveError(uint8_t pipe, uint8_t errorCode) {
@@ -142,12 +142,44 @@ void Peripheral::setLightColor(uint8_t* data, uint8_t size) {
 void Peripheral::setCommand(uint8_t* data, uint8_t size) {
 }
 
-// setup
-void Peripheral::setState() {
-  StateObject stateObject;
-  stateObjectEEPROM.read(0, stateObject);
-  DBUG_LOG(F("Peripheral::setState (status, value)"));
-  DBUG_LOG(stateObject.status);
-  DBUG_LOG(stateObject.switchValue);
-  setData(PIPE_HUE_LIGHTS_HUE_SWITCH_SET, &stateObject.switchValue, PIPE_HUE_LIGHTS_HUE_SWITCH_SET_MAX_SIZE);
+// state
+void Peripheral::setSwitchValue(uint8_t switchValue) {
+  StateObject state;
+  getState(state);
+  if (state.switchValue != switchValue) {
+    state.switchValue = switchValue;
+    sendData(PIPE_HUE_LIGHTS_HUE_SWITCH_TX, &state.wifiStatus, PIPE_HUE_LIGHTS_HUE_SWITCH_TX_MAX_SIZE);
+    setData(PIPE_HUE_LIGHTS_HUE_SWITCH_SET, &state.switchValue, PIPE_HUE_LIGHTS_HUE_SWITCH_SET_MAX_SIZE);
+    updateState(state);
+  }
 }
+
+void Peripheral::setWifiStatus(uint8_t wifiStatus) {
+  StateObject state;
+  getState(state);
+  if (state.wifiStatus != wifiStatus) {
+    state.wifiStatus = wifiStatus;
+    sendData(PIPE_HUE_LIGHTS_HUE_STATUS_TX, &state.wifiStatus, PIPE_HUE_LIGHTS_HUE_STATUS_TX_MAX_SIZE);
+    setData(PIPE_HUE_LIGHTS_HUE_STATUS_SET, &state.wifiStatus, PIPE_HUE_LIGHTS_HUE_STATUS_SET_MAX_SIZE);
+    updateState(state);
+  }
+}
+
+void Peripheral::updateState(StateObject& state) {
+  DBUG_LOG(F("Peripheral::setState"));
+  DBUG_LOG(state.wifiStatus);
+  DBUG_LOG(state.switchValue);
+  stateObjectEEPROM.update(0, state);
+}
+
+void Peripheral::getState(StateObject& state) {
+  stateObjectEEPROM.read(0, state);
+}
+
+void Peripheral::initState() {
+  StateObject state;
+  getState(state);
+  setSwitchValue(state.switchValue);
+  setWifiStatus(state.wifiStatus);
+}
+

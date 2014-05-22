@@ -14,7 +14,7 @@ class HomeI2CMaster;
 #define MAX_NUMBER_OF_STATE_OBJECTS             1
 
 struct StateObject {
-  uint8_t status;
+  uint8_t wifiStatus;
   uint8_t switchValue;
 };
 
@@ -28,6 +28,9 @@ public:
   void loop();
 
   void setI2CMaster(HomeI2CMaster* _i2cMaster) {i2cMaster = _i2cMaster;};
+
+  void setSwitchValue(uint8_t switchValue);
+  void setWifiStatus(uint8_t wifiStatus);
 
 protected:
 
@@ -51,7 +54,11 @@ private:
   void setLightColor(uint8_t* data, uint8_t size);
   void setCommand(uint8_t* data, uint8_t size);
 
-  void setState();
+  void updateState(StateObject& state);
+  void getState(StateObject& state);
+  void initState();
+
+  void setSwitchValue(StateObject& state);
 
 private:
 
