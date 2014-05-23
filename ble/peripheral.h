@@ -15,7 +15,7 @@ class HomeI2CMaster;
 
 struct StateObject {
   uint8_t wifiStatus;
-  uint8_t switchValue;
+  uint8_t switchState;
 };
 
 class Peripheral : public BlueCapBondedPeripheral {
@@ -29,8 +29,8 @@ public:
 
   void setI2CMaster(HomeI2CMaster* _i2cMaster) {i2cMaster = _i2cMaster;};
 
-  void setSwitchValue(uint8_t switchValue);
-  void setWifiStatus(uint8_t wifiStatus);
+  void setSwitchState(uint8_t switchValue);
+  void setWifiStatusState(uint8_t wifiStatus);
 
 protected:
 
@@ -57,8 +57,6 @@ private:
   void updateState(StateObject& state);
   void getState(StateObject& state);
   void initState();
-
-  void setSwitchValue(StateObject& state);
 
 private:
 

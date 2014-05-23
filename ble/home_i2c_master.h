@@ -17,7 +17,7 @@ public:
   void processResponse(I2CMessage& message);
 
   void wifiStatus();
-  void wifiStatusResponse(I2CMessage& message);
+  void allLightsOn(uint8_t value);
 
 private:
 

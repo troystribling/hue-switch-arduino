@@ -120,13 +120,8 @@ void Peripheral::setLocation(uint8_t* data, uint8_t size) {
 }
 
 void Peripheral::setSwitch(uint8_t* data, uint8_t size) {
-  StateObject stateObject;
-  stateObjectEEPROM.read(0, stateObject);
-  memcpy(&(stateObject.switchValue), data, 1);
+  uint8_t switchState = data[0];
   if (sendAck(PIPE_HUE_LIGHTS_HUE_SWITCH_RX_ACK)) {
-    stateObjectEEPROM.update(0, stateObject);
-    DBUG_LOG(F("Peripheral::setSwitch::switchValue:"));
-    DBUG_LOG(stateObject.switchValue, HEX);
   }
 }
 
@@ -143,18 +138,18 @@ void Peripheral::setCommand(uint8_t* data, uint8_t size) {
 }
 
 // state
-void Peripheral::setSwitchValue(uint8_t switchValue) {
+void Peripheral::setSwitchState(uint8_t switchState) {
   StateObject state;
   getState(state);
-  if (state.switchValue != switchValue) {
-    state.switchValue = switchValue;
+  if (state.switchState != switchState) {
+    state.switchState = switchState;
     sendData(PIPE_HUE_LIGHTS_HUE_SWITCH_TX, &state.wifiStatus, PIPE_HUE_LIGHTS_HUE_SWITCH_TX_MAX_SIZE);
-    setData(PIPE_HUE_LIGHTS_HUE_SWITCH_SET, &state.switchValue, PIPE_HUE_LIGHTS_HUE_SWITCH_SET_MAX_SIZE);
+    setData(PIPE_HUE_LIGHTS_HUE_SWITCH_SET, &state.switchState, PIPE_HUE_LIGHTS_HUE_SWITCH_SET_MAX_SIZE);
     updateState(state);
   }
 }
 
-void Peripheral::setWifiStatus(uint8_t wifiStatus) {
+void Peripheral::setWifiStatusState(uint8_t wifiStatus) {
   StateObject state;
   getState(state);
   if (state.wifiStatus != wifiStatus) {
@@ -168,7 +163,7 @@ void Peripheral::setWifiStatus(uint8_t wifiStatus) {
 void Peripheral::updateState(StateObject& state) {
   DBUG_LOG(F("Peripheral::setState"));
   DBUG_LOG(state.wifiStatus);
-  DBUG_LOG(state.switchValue);
+  DBUG_LOG(state.switchState);
   stateObjectEEPROM.update(0, state);
 }
 
@@ -179,7 +174,8 @@ void Peripheral::getState(StateObject& state) {
 void Peripheral::initState() {
   StateObject state;
   getState(state);
-  setSwitchValue(state.switchValue);
-  setWifiStatus(state.wifiStatus);
+  setSwitchState(state.switchState);
+  setWifiStatusState(state.wifiStatus);
+  i2cMaster->allLightsOn(state.switchState);
 }
 

@@ -41,6 +41,7 @@ void HomeI2CMaster::processResponse(I2CMessage& message) {
       case HUE_LIGHTS_LIGHT_ON_CMD:
         break;
       case HUE_LIGHTS_ALL_LIGHTS_ON_CMD:
+        peripheral->setSwitchState(message.buffer[0]);
         break;
       case HUE_LIGHTS_CREATE_SCENE_CMD:
         break;
@@ -76,7 +77,7 @@ void HomeI2CMaster::processResponse(I2CMessage& message) {
         break;
       case WIFI_STATUS_CMD:
         DBUG_LOG(F("WIFI_STATUS_CMD"));
-        wifiStatusResponse(message);
+        peripheral->setWifiStatusState(message.buffer[0]);
         break;
       default:
         ERROR_LOG(F("(HomeI2CMaster::processCommand) Command ID is invalid:"));
@@ -91,6 +92,9 @@ void  HomeI2CMaster::wifiStatus() {
   writeAndReceiveResponse(HUE_LIGHTS_I2C_ADDRESS, message, WIFI_STATUS_REQUEST_SIZE, WIFI_STATUS_RESPONSE_SIZE);
 }
 
-void HomeI2CMaster::wifiStatusResponse(I2CMessage& message) {
-  peripheral->setWifiStatus(message.buffer[0]);
+void HomeI2CMaster::allLightsOn(uint8_t value) {
+  I2CMessage message;
+  message.messageID = HUE_LIGHTS_ALL_LIGHTS_ON_CMD;
+  message.buffer[0] = value;
+  writeAndReceiveResponse(HUE_LIGHTS_I2C_ADDRESS, message, HUE_LIGHTS_ALL_LIGHTS_ON_CMD_REQUEST_SIZE, HUE_LIGHTS_ALL_LIGHTS_ON_CMD_RESPONSE_SIZE);
 }
