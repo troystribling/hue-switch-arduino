@@ -32,6 +32,8 @@ public:
   void setSwitchState(uint8_t switchValue);
   void setWifiStatusState(uint8_t wifiStatus);
 
+  void sendSwitchAck(uint8_t* message);
+
 protected:
 
   void didReceiveData(uint8_t characteristicId, uint8_t* data, uint8_t size);
@@ -47,12 +49,12 @@ protected:
 
 private:
 
-  void setLocation(uint8_t* data, uint8_t size);
-  void setSwitch(uint8_t* data, uint8_t size);
+  void setLocation(uint8_t* data);
+  void setSwitch(uint8_t* data);
   void setSceneName(uint8_t* data, uint8_t size);
-  void setCurrentSceneId(uint8_t* data, uint8_t size);
-  void setLightColor(uint8_t* data, uint8_t size);
-  void setCommand(uint8_t* data, uint8_t size);
+  void setCurrentSceneId(uint8_t* data);
+  void setLightColor(uint8_t* data);
+  void setCommand(uint8_t* data);
 
   void updateState(StateObject& state);
   void getState(StateObject& state);

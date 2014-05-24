@@ -27,6 +27,11 @@ void receiveEvent(int numBytes) {
 }
 
 void requestEvent() {
+  DBUG_LOG(F("request message size, buffer"));
+  DBUG_LOG(i2cSlave->messageBufferSize());
+  for (int i = 0; i < i2cSlave->messageBufferSize(); i++) {
+    DBUG_LOG(i2cSlave->messageBuffer()[i]);
+  }
   Wire.write(i2cSlave->messageBuffer(), i2cSlave->messageBufferSize());
 }
 
@@ -41,11 +46,10 @@ void WifiI2CSlave::begin() {
 }
 
 void  WifiI2CSlave::procesRequest(I2CMessage& requestMessage) {
+  DBUG_FREE_MEMORY;
   switch (requestMessage.messageID) {
-      case HUE_LIGHTS_LIGHT_ON_CMD:
-        processSetLightOn(requestMessage);
-        break;
       case HUE_LIGHTS_ALL_LIGHTS_ON_CMD:
+        DBUG_LOG(F("HUE_LIGHTS_ALL_LIGHTS_ON_CMD"));
         processSetAllLightsOn(requestMessage);
         break;
       case HUE_LIGHTS_CREATE_SCENE_CMD:
@@ -104,21 +108,22 @@ void  WifiI2CSlave::procesRequest(I2CMessage& requestMessage) {
         responseMessageSize = WIFI_STATUS_RESPONSE_SIZE;
         break;
       default:
-        ERROR_LOG(F("(WifiI2CSlave::processCommand) Command ID is invalid:"));
+        ERROR_LOG(F("I2C Command invalid:"));
         ERROR_LOG(requestMessage.messageID, DEC);
         break;
   }
 }
 
-void WifiI2CSlave::processSetLightOn(I2CMessage& requestMessage) {
-  uint8_t lightID = requestMessage.buffer[0];
-  bool lightOnStatus = (bool)requestMessage.buffer[1];
-  client->setLightOn(lightID, lightOnStatus);
-}
-
 void WifiI2CSlave::processSetAllLightsOn(I2CMessage& requestMessage) {
-  bool lightOnStatus = (bool)requestMessage.buffer[0];
-  client->setAllLightsOn(lightOnStatus);
+  bool lightOn = (bool)requestMessage.buffer[0];
+  bool status = client->setAllLightsOn(lightOn);
+  DBUG_LOG(F("processSetAllLightsOn, lightOn, status"));
+  DBUG_LOG(lightOn);
+  DBUG_LOG(status);
+  responseMessage.messageID = HUE_LIGHTS_ALL_LIGHTS_ON_CMD;
+  responseMessage.buffer[0] = status;
+  responseMessage.buffer[1] = lightOn;
+  responseMessageSize = HUE_LIGHTS_ALL_LIGHTS_ON_CMD_RESPONSE_SIZE;
 }
 
 void WifiI2CSlave::processSetLightColor(I2CMessage& requestMessage) {

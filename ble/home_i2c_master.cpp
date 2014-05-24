@@ -21,13 +21,12 @@ void HomeI2CMaster::writeAndReceiveResponse(uint8_t address, I2CMessage& message
   while (Wire.available()) {
     if (bytesReceived == 0) {
       message.messageID = Wire.read();
-      DBUG_LOG(F("Message ID"));
+      DBUG_LOG(F("Message ID:"));
       DBUG_LOG(message.messageID);
     } else {
       if (bytesReceived <= MAX_I2C_MESSAGE_SIZE) {
         message.buffer[bytesReceived-1] = Wire.read();
-        DBUG_LOG(F("Data received: byte, val"));
-        DBUG_LOG(bytesReceived-1);
+        DBUG_LOG(F("Data received:"));
         DBUG_LOG(message.buffer[bytesReceived-1], HEX);
       }
     }
@@ -38,10 +37,9 @@ void HomeI2CMaster::writeAndReceiveResponse(uint8_t address, I2CMessage& message
 
 void HomeI2CMaster::processResponse(I2CMessage& message) {
     switch (message.messageID) {
-      case HUE_LIGHTS_LIGHT_ON_CMD:
-        break;
       case HUE_LIGHTS_ALL_LIGHTS_ON_CMD:
-        peripheral->setSwitchState(message.buffer[0]);
+        DBUG_LOG(F("HUE_LIGHTS_ALL_LIGHTS_ON_CMD"));
+        peripheral->sendSwitchAck(message.buffer);
         break;
       case HUE_LIGHTS_CREATE_SCENE_CMD:
         break;
@@ -87,12 +85,15 @@ void HomeI2CMaster::processResponse(I2CMessage& message) {
 }
 
 void  HomeI2CMaster::wifiStatus() {
+  DBUG_LOG(F("wifiStatus"));
   I2CMessage message;
   message.messageID = WIFI_STATUS_CMD;
   writeAndReceiveResponse(HUE_LIGHTS_I2C_ADDRESS, message, WIFI_STATUS_REQUEST_SIZE, WIFI_STATUS_RESPONSE_SIZE);
 }
 
-void HomeI2CMaster::allLightsOn(uint8_t value) {
+void HomeI2CMaster::setSwitch(uint8_t value) {
+  DBUG_LOG(F("setSwitch: value"));
+  DBUG_LOG(value);
   I2CMessage message;
   message.messageID = HUE_LIGHTS_ALL_LIGHTS_ON_CMD;
   message.buffer[0] = value;

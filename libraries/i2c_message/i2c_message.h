@@ -11,7 +11,6 @@ struct I2CMessage {
   uint8_t buffer[MAX_I2C_MESSAGE_SIZE];
 };
 
-#define HUE_LIGHTS_LIGHT_ON_CMD                 1
 #define HUE_LIGHTS_ALL_LIGHTS_ON_CMD            2
 #define HUE_LIGHTS_CREATE_SCENE_CMD             3
 #define HUE_LIGHTS_UPDATE_SCENE_CMD             4
@@ -35,6 +34,8 @@ struct I2CMessage {
 #define WIFI_STATUS_RESPONSE_SIZE                     2
 
 #define HUE_LIGHTS_ALL_LIGHTS_ON_CMD_REQUEST_SIZE     2
-#define HUE_LIGHTS_ALL_LIGHTS_ON_CMD_RESPONSE_SIZE    2
+#define HUE_LIGHTS_ALL_LIGHTS_ON_CMD_RESPONSE_SIZE    3
+
+#define HUE_LIGHTS_ERROR                              0x80
 
 #endif

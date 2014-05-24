@@ -30,7 +30,6 @@ private:
 private:
 
   void processStatus(I2CMessage& requestMessage);
-  void processSetLightOn(I2CMessage& requestMessage);
   void processSetAllLightsOn(I2CMessage& requestMessage);
   void processSetLightColor(I2CMessage& requestMessage);
   void processGetLightColor(I2CMessage& requestMessage);

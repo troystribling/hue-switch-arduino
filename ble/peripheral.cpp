@@ -26,6 +26,7 @@ void Peripheral::loop() {
   if (millis() % updatePeriod == 0) {
     DBUG_LOG(updatePeriod);
     i2cMaster->wifiStatus();
+    // i2cMaster->setSwitch(1);
   }
   BlueCapBondedPeripheral::loop();
 }
@@ -35,11 +36,11 @@ void Peripheral::didReceiveData(uint8_t characteristicId, uint8_t* data, uint8_t
   switch(characteristicId) {
     case PIPE_LOCATION_LATITUDE_AND_LONGITUDE_RX_ACK:
       DBUG_LOG(F("PIPE_LOCATION_LATITUDE_AND_LONGITUDE_RX_ACK"));
-      setLocation(data, size);
+      setLocation(data);
       break;
     case PIPE_HUE_LIGHTS_HUE_SWITCH_RX_ACK:
       DBUG_LOG(F("PIPE_HUE_LIGHTS_HUE_SWITCH_RX_ACK"));
-      setSwitch(data, size);
+      setSwitch(data);
       break;
     case PIPE_HUE_LIGHTS_HUE_SCENE_NAME_RX_ACK:
       DBUG_LOG(F("PIPE_HUE_LIGHTS_HUE_SCENE_NAME_RX_ACK"));
@@ -47,15 +48,15 @@ void Peripheral::didReceiveData(uint8_t characteristicId, uint8_t* data, uint8_t
       break;
     case PIPE_HUE_LIGHTS_CURRENT_HUE_SCENE_ID_RX_ACK:
       DBUG_LOG(F("PIPE_HUE_LIGHTS_CURRENT_HUE_SCENE_ID_RX_ACK"));
-      setCurrentSceneId(data, size);
+      setCurrentSceneId(data);
       break;
     case PIPE_HUE_LIGHTS_HUE_LIGHT_COLOR_RX_ACK:
       DBUG_LOG(F("PIPE_HUE_LIGHTS_HUE_LIGHT_COLOR_RX_ACK"));
-      setLightColor(data, size);
+      setLightColor(data);
       break;
     case PIPE_HUE_LIGHTS_HUE_LIGHTS_COMMAND_RX_ACK:
       DBUG_LOG(F("PIPE_HUE_LIGHTS_HUE_LIGHTS_COMMAND_RX_ACK"));
-      setCommand(data, size);
+      setCommand(data);
       break;
     default:
       break;
@@ -115,26 +116,40 @@ void Peripheral::didBond() {
 bool Peripheral::doTimingChange() {
 }
 
-// update attributes
-void Peripheral::setLocation(uint8_t* data, uint8_t size) {
+// acks
+void Peripheral::sendSwitchAck(uint8_t* message) {
+  DBUG_LOG(F("sendSwitchAck status, value"));
+  DBUG_LOG(message[0]);
+  DBUG_LOG(message[1]);
+  if (message[0] == 1) {
+    if (sendAck(PIPE_HUE_LIGHTS_HUE_SWITCH_RX_ACK)) {
+      setSwitchState(message[1]);
+    }
+  } else {
+    sendNack(PIPE_HUE_LIGHTS_HUE_SWITCH_RX_ACK, HUE_LIGHTS_ERROR);
+    ERROR_LOG(F("Switch failed"));
+  }
 }
 
-void Peripheral::setSwitch(uint8_t* data, uint8_t size) {
+// update attributes
+void Peripheral::setLocation(uint8_t* data) {
+}
+
+void Peripheral::setSwitch(uint8_t* data) {
   uint8_t switchState = data[0];
-  if (sendAck(PIPE_HUE_LIGHTS_HUE_SWITCH_RX_ACK)) {
-  }
+  i2cMaster->setSwitch(switchState);
 }
 
 void Peripheral::setSceneName(uint8_t* data, uint8_t size) {
 }
 
-void Peripheral::setCurrentSceneId(uint8_t* data, uint8_t size) {
+void Peripheral::setCurrentSceneId(uint8_t* data) {
 }
 
-void Peripheral::setLightColor(uint8_t* data, uint8_t size) {
+void Peripheral::setLightColor(uint8_t* data) {
 }
 
-void Peripheral::setCommand(uint8_t* data, uint8_t size) {
+void Peripheral::setCommand(uint8_t* data) {
 }
 
 // state
@@ -174,8 +189,7 @@ void Peripheral::getState(StateObject& state) {
 void Peripheral::initState() {
   StateObject state;
   getState(state);
-  setSwitchState(state.switchState);
   setWifiStatusState(state.wifiStatus);
-  i2cMaster->allLightsOn(state.switchState);
+  setSwitchState(state.switchState);
 }
 
