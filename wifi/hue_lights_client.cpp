@@ -89,10 +89,10 @@ bool HueLightsClient::setLightOn(uint8_t lightID, bool on) {
 bool HueLightsClient::setAllLightsOn(bool on) {
   bool status = true;
   for (int i = 1; i <= getLightCount(); i++) {
-    // if (!setLightOn(i, on)) {
-    //   status = false;
-    //   break;
-    // }
+    if (!setLightOn(i, on)) {
+      status = false;
+      break;
+    }
   }
   return status;
 }

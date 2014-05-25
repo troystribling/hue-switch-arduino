@@ -20,13 +20,13 @@ Peripheral::Peripheral(uint8_t _reqn, uint8_t _rdyn, uint8_t _maxBonds, uint16_t
 void Peripheral::begin() {
   DBUG_LOG(F("Peripheral::begin"));
   BlueCapBondedPeripheral::begin();
+  initState();
 }
 
 void Peripheral::loop() {
   if (millis() % updatePeriod == 0) {
     DBUG_LOG(updatePeriod);
     i2cMaster->wifiStatus();
-    // i2cMaster->setSwitch(1);
   }
   BlueCapBondedPeripheral::loop();
 }
@@ -101,7 +101,6 @@ void Peripheral::didConnect() {
 }
 
 void Peripheral::didStartAdvertising() {
-    initState();
 }
 
 void Peripheral::didReceiveError(uint8_t pipe, uint8_t errorCode) {
@@ -190,6 +189,6 @@ void Peripheral::initState() {
   StateObject state;
   getState(state);
   setWifiStatusState(state.wifiStatus);
-  setSwitchState(state.switchState);
+  i2cMaster->setSwitch(state.switchState);
 }
 

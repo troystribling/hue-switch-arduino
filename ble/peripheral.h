@@ -31,7 +31,6 @@ public:
 
   void setSwitchState(uint8_t switchValue);
   void setWifiStatusState(uint8_t wifiStatus);
-
   void sendSwitchAck(uint8_t* message);
 
 protected:

@@ -12,7 +12,7 @@ HueLightsClient client(WEB_HOST, WEB_ROOT);
   #include "serial_ui.h"
   SerialUI ui(&client);
 #else
-  #include <Wire.h>address
+  #include <Wire.h>
   #include "i2c_message.h"
   #include "wifi_i2c_slave.h"
   const uint8_t address = 4;
@@ -34,5 +34,7 @@ void setup() {
 void loop() {
 #ifdef SERIAL_UI
   ui.processSerialInput();
+#else
+  i2cSlave.listen();
 #endif
 }

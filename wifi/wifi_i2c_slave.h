@@ -13,9 +13,7 @@ public:
   ~WifiI2CSlave(){};
 
   void begin();
-  uint8_t* messageBuffer(){return (uint8_t*)&responseMessage;};
-  size_t messageBufferSize(){return responseMessageSize;};
-  void procesRequest(I2CMessage& requestMessage);
+  void listen();
 
 private:
 
@@ -23,12 +21,10 @@ private:
   HueLightsClient*  client;
   HueLightsScene    scene;
   uint8_t           sceneID;
-  I2CMessage        responseMessage;
-  uint8_t           responseMessageSize;
-
 
 private:
 
+  void processRequest();
   void processStatus(I2CMessage& requestMessage);
   void processSetAllLightsOn(I2CMessage& requestMessage);
   void processSetLightColor(I2CMessage& requestMessage);

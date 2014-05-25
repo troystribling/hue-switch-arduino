@@ -3,7 +3,10 @@
 #include "hue_lights_client.h"
 #include "wifi_i2c_slave.h"
 
-static WifiI2CSlave* i2cSlave = NULL;
+static I2CMessage responseMessage;
+uint8_t responseMessageSize;
+static I2CMessage requestMessage;
+static bool requestAvailable;
 
 extern "C" {
   void receiveEvent(int numBytes);
@@ -11,32 +14,31 @@ extern "C" {
 }
 
 void receiveEvent(int numBytes) {
-  I2CMessage message;
   uint8_t bytesReceived = 0;
   while(Wire.available()) {
     if (bytesReceived == 0) {
-      message.messageID = Wire.read();
+      requestMessage.messageID = Wire.read();
     } else {
       if (bytesReceived <= MAX_I2C_MESSAGE_SIZE) {
-        message.buffer[bytesReceived-1] = Wire.read();
+        requestMessage.buffer[bytesReceived-1] = Wire.read();
       }
     }
     bytesReceived++;
   }
-  i2cSlave->procesRequest(message);
+  requestAvailable = true;
 }
 
 void requestEvent() {
   DBUG_LOG(F("request message size, buffer"));
-  DBUG_LOG(i2cSlave->messageBufferSize());
-  for (int i = 0; i < i2cSlave->messageBufferSize(); i++) {
-    DBUG_LOG(i2cSlave->messageBuffer()[i]);
+  DBUG_LOG(responseMessageSize);
+  for (int i = 0; i < responseMessageSize; i++) {
+    DBUG_LOG(((uint8_t*)&responseMessage)[i]);
   }
-  Wire.write(i2cSlave->messageBuffer(), i2cSlave->messageBufferSize());
+  Wire.write((uint8_t*)&responseMessage, responseMessageSize);
 }
 
 WifiI2CSlave::WifiI2CSlave(HueLightsClient* a_client, uint8_t address) : address(address), client(a_client) {
-  i2cSlave = this;
+  requestAvailable = false;
 }
 
 void WifiI2CSlave::begin() {
@@ -45,7 +47,14 @@ void WifiI2CSlave::begin() {
   Wire.onRequest(requestEvent);
 }
 
-void  WifiI2CSlave::procesRequest(I2CMessage& requestMessage) {
+void WifiI2CSlave::listen() {
+  if (requestAvailable) {
+    requestAvailable = false;
+    processRequest();
+  }
+}
+
+void  WifiI2CSlave::processRequest() {
   DBUG_FREE_MEMORY;
   switch (requestMessage.messageID) {
       case HUE_LIGHTS_ALL_LIGHTS_ON_CMD:
