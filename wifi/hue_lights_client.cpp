@@ -27,8 +27,6 @@ void HueLightsClient::lanConnect(const char*  _wlanSSID, const char*  _wlanPassw
   serverIpAddress = 0;
   HALT_ON_ERROR(cc3000.begin(), F("Couldn't begin()! Check your wiring?"));
   HALT_ON_ERROR(cc3000.connectToAP(_wlanSSID, _wlanPassword, WLAN_SECURITY), F("Connect Failed!"));
-  DBUG_OUT("\n");
-  DBUG_LOG(F("Connected to LAN, Doing DHCP Request"));
   while (!cc3000.checkDHCP()) {
     delay(100);
   }
@@ -129,7 +127,6 @@ bool HueLightsClient::setLightColor(uint8_t lightID, const HueLight& light) {
 }
 
 bool HueLightsClient::setLightCount() {
-  DBUG_LOG(F("Light Count"));
   bool status = false;
   uint8_t count = 0;
   String url = String(siteRoot);
@@ -141,8 +138,6 @@ bool HueLightsClient::setLightCount() {
         uint8_t lightCount = readHTTPLightsResponse();
         if (lightCount > 0) {
           NumberOfLights count = {0x01, lightCount};
-          DBUG_LOG(F("lightCount"));
-          DBUG_LOG(lightCount);
           numberOfLightsEEPROM.update(0, count);
           status = true;
         }
@@ -165,8 +160,6 @@ uint8_t HueLightsClient::getLightCount() {
 uint8_t HueLightsClient::createScene(const HueLightsScene& scene) {
   uint8_t index;
   scenesEEPROM.create(index, scene);
-  DBUG_LOG(F("Created scene index:"));
-  DBUG_LOG(index);
   setCurrentSceneID(index);
   return index;
 }
@@ -209,8 +202,6 @@ void HueLightsClient::setCurrentScene(uint8_t sceneID) {
 // private
 bool HueLightsClient::siteConnect() {
   if (serverIpAddress != 0) {
-    DBUG_LOG(F("Attempting connect to server:"));
-    DBUG_LOG(serverIpAddress, HEX);
     client = cc3000.connectTCP(serverIpAddress, 80);
     return client.connected();
   } else {
@@ -252,9 +243,6 @@ bool HueLightsClient::httpRequest(const __FlashStringHelper* method, String* url
     if (siteConnect()) {
       char urlBuffer[url->length()+1];
       url->toCharArray(urlBuffer, url->length()+1);
-      DBUG_LOG(F("HTTP URL:"));
-      DBUG_LOG(urlBuffer);
-      DBUG_LOG(url->length(), DEC);
       client.fastrprint(method); client.fastrprint(" ");
       client.fastrprint(urlBuffer);
       client.fastrprint(F(" HTTP/1.1\r\n"));
@@ -262,18 +250,12 @@ bool HueLightsClient::httpRequest(const __FlashStringHelper* method, String* url
       if (headers) {
         char headersBuffer[headers->length()+1];
         headers->toCharArray(headersBuffer, headers->length()+1);
-        DBUG_LOG(F("HTTP HEADERS:"));
-        DBUG_LOG(headersBuffer);
-        DBUG_LOG(headers->length(), DEC);
         client.fastrprint(headersBuffer);
         client.fastrprint(F("\r\n"));
       }
       if (body) {
         char bodyBuffer[body->length()+1];
         body->toCharArray(bodyBuffer, body->length()+1);
-        DBUG_LOG(F("HTTP BODY:"));
-        DBUG_LOG(bodyBuffer);
-        DBUG_LOG(body->length(), DEC);
         client.fastrprint(bodyBuffer);
       }
       client.fastrprint(F("\r\n"));
@@ -311,8 +293,6 @@ uint16_t HueLightsClient::readHTTPResponseStatus() {
     }
   }
   httpStatus = atoi(statusBuffer);
-  DBUG_LOG(F("HTTP Status:"));
-  DBUG_LOG(httpStatus);
   return httpStatus;
 }
 
@@ -341,7 +321,5 @@ uint8_t HueLightsClient::readHTTPLightsResponse() {
 void  HueLightsClient::setCurrentSceneID(uint8_t sceneID) {
   HueLightsCurrentSceneID currentID = {0x01, sceneID};
   currentSceneIDEEPROM.update(0, currentID);
-  DBUG_LOG(F("Current Scene ID"));
-  DBUG_LOG(currentID.currentSceneID);
 }
 

@@ -23,6 +23,8 @@ Peripheral peripheral(REQN_PIN, RDYN_PIN, MAX_BONDS);
 HomeI2CMaster i2cMaster(&peripheral);
 
 void clearBond() {
+  DBUG_LOG(F("CLEAR_BONDS_PIN"));
+  DBUG_LOG(digitalRead(CLEAR_BONDS_PIN));
   if (digitalRead(CLEAR_BONDS_PIN) == HIGH) {
     INFO_LOG(F("Clearing EEPROM bond"));
     peripheral.clearBondData();
@@ -54,14 +56,14 @@ void addBond() {
 void setup() {
   Serial.begin(9600);
   DBUG_FREE_MEMORY;
-  peripheral.begin();
-  peripheral.setI2CMaster(&i2cMaster);
-  i2cMaster.begin();
   pinMode(CLEAR_BONDS_PIN, INPUT);
   pinMode(ADD_BOND_PIN, INPUT);
   INFO_LOG(F("To delete the bond stored in EEPROM, connect pin 6 to 5v and reset."));
   INFO_LOG(F("To add a bond connect pin 7 to 5v."));
   clearBond();
+  peripheral.begin();
+  peripheral.setI2CMaster(&i2cMaster);
+  i2cMaster.begin();
 }
 
 void loop() {

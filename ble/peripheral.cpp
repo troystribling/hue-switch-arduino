@@ -20,12 +20,10 @@ Peripheral::Peripheral(uint8_t _reqn, uint8_t _rdyn, uint8_t _maxBonds, uint16_t
 void Peripheral::begin() {
   DBUG_LOG(F("Peripheral::begin"));
   BlueCapBondedPeripheral::begin();
-  initState();
 }
 
 void Peripheral::loop() {
   if (millis() % updatePeriod == 0) {
-    DBUG_LOG(updatePeriod);
     i2cMaster->wifiStatus();
   }
   BlueCapBondedPeripheral::loop();
@@ -101,6 +99,7 @@ void Peripheral::didConnect() {
 }
 
 void Peripheral::didStartAdvertising() {
+    initState();
 }
 
 void Peripheral::didReceiveError(uint8_t pipe, uint8_t errorCode) {
@@ -157,19 +156,17 @@ void Peripheral::setSwitchState(uint8_t switchState) {
   getState(state);
   if (state.switchState != switchState) {
     state.switchState = switchState;
-    sendData(PIPE_HUE_LIGHTS_HUE_SWITCH_TX, &state.wifiStatus, PIPE_HUE_LIGHTS_HUE_SWITCH_TX_MAX_SIZE);
-    setData(PIPE_HUE_LIGHTS_HUE_SWITCH_SET, &state.switchState, PIPE_HUE_LIGHTS_HUE_SWITCH_SET_MAX_SIZE);
+    sendSwitchState(state.switchState);
     updateState(state);
   }
 }
 
-void Peripheral::setWifiStatusState(uint8_t wifiStatus) {
+void Peripheral::setWifiStatus(uint8_t wifiStatus) {
   StateObject state;
   getState(state);
   if (state.wifiStatus != wifiStatus) {
     state.wifiStatus = wifiStatus;
-    sendData(PIPE_HUE_LIGHTS_HUE_STATUS_TX, &state.wifiStatus, PIPE_HUE_LIGHTS_HUE_STATUS_TX_MAX_SIZE);
-    setData(PIPE_HUE_LIGHTS_HUE_STATUS_SET, &state.wifiStatus, PIPE_HUE_LIGHTS_HUE_STATUS_SET_MAX_SIZE);
+    sendWifiStatus(state.wifiStatus);
     updateState(state);
   }
 }
@@ -188,7 +185,18 @@ void Peripheral::getState(StateObject& state) {
 void Peripheral::initState() {
   StateObject state;
   getState(state);
-  setWifiStatusState(state.wifiStatus);
+  sendWifiStatus(state.wifiStatus);
+  sendSwitchState(state.switchState);
   i2cMaster->setSwitch(state.switchState);
+}
+
+void Peripheral::sendSwitchState(uint8_t switchState) {
+  sendData(PIPE_HUE_LIGHTS_HUE_SWITCH_TX, &switchState, PIPE_HUE_LIGHTS_HUE_SWITCH_TX_MAX_SIZE);
+  setData(PIPE_HUE_LIGHTS_HUE_SWITCH_SET, &switchState, PIPE_HUE_LIGHTS_HUE_SWITCH_SET_MAX_SIZE);
+}
+
+void Peripheral::sendWifiStatus(uint8_t wifiStatus) {
+  sendData(PIPE_HUE_LIGHTS_HUE_STATUS_TX, &wifiStatus, PIPE_HUE_LIGHTS_HUE_STATUS_TX_MAX_SIZE);
+  setData(PIPE_HUE_LIGHTS_HUE_STATUS_SET, &wifiStatus, PIPE_HUE_LIGHTS_HUE_STATUS_SET_MAX_SIZE);
 }
 

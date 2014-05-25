@@ -7,7 +7,7 @@ class HomeI2CMaster;
 #include "eeprom_objects.h"
 
 // defaults
-#define DEFAULT_UPDATE_PERIOD                   10000
+#define DEFAULT_UPDATE_PERIOD                   30000
 
 // eeprom storage objects
 #define NUMBER_OF_STATE_OBJECTS_OFFSET          0
@@ -30,7 +30,7 @@ public:
   void setI2CMaster(HomeI2CMaster* _i2cMaster) {i2cMaster = _i2cMaster;};
 
   void setSwitchState(uint8_t switchValue);
-  void setWifiStatusState(uint8_t wifiStatus);
+  void setWifiStatus(uint8_t wifiStatus);
   void sendSwitchAck(uint8_t* message);
 
 protected:
@@ -54,6 +54,9 @@ private:
   void setCurrentSceneId(uint8_t* data);
   void setLightColor(uint8_t* data);
   void setCommand(uint8_t* data);
+
+  void sendSwitchState(uint8_t switchValue);
+  void sendWifiStatus(uint8_t wifiStatus);
 
   void updateState(StateObject& state);
   void getState(StateObject& state);

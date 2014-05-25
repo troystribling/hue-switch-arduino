@@ -10,30 +10,47 @@ void HomeI2CMaster::begin() {
 
 void HomeI2CMaster::writeAndReceiveResponse(uint8_t address, I2CMessage& message, size_t requestSize, size_t responseSize) {
   uint8_t bytesReceived = 0;
+  bool errorStatus = true;
   DBUG_LOG(F("Begin transmission of message"));
   DBUG_LOG(message.messageID);
   Wire.beginTransmission(address);
   Wire.write((uint8_t*)&message, responseSize);
-  Wire.endTransmission();
-  // delay(10000);
-  // DBUG_LOG(F("Receiving response of size"));
-  // DBUG_LOG(responseSize);
-  // Wire.requestFrom(address, responseSize);
-  // while (Wire.available()) {
-  //   if (bytesReceived == 0) {
-  //     message.messageID = Wire.read();
-  //     DBUG_LOG(F("Message ID:"));
-  //     DBUG_LOG(message.messageID);
-  //   } else {
-  //     if (bytesReceived <= MAX_I2C_MESSAGE_SIZE) {
-  //       message.buffer[bytesReceived-1] = Wire.read();
-  //       DBUG_LOG(F("Data received:"));
-  //       DBUG_LOG(message.buffer[bytesReceived-1], HEX);
-  //     }
-  //   }
-  //   bytesReceived++;
-  // }
-  // processResponse(message);
+  uint8_t transmissionCode = Wire.endTransmission();
+  DBUG_LOG(F("transmissionCode"));
+  DBUG_LOG(transmissionCode);
+  if (transmissionCode == 0) {
+    DBUG_LOG(F("Receiving response of size"));
+    DBUG_LOG(responseSize);
+    Wire.requestFrom(address, responseSize);
+    DBUG_LOG(F("Response received"));
+    while (Wire.available()) {
+      if (bytesReceived == 0) {
+        uint8_t messageID = Wire.read();
+        if (messageID == message.messageID) {
+          message.messageID = messageID;
+          DBUG_LOG(F("Message ID:"));
+          DBUG_LOG(message.messageID);
+        } else {
+          ERROR_LOG(F("Response messageID invalid:"));
+          ERROR_LOG(messageID);
+          errorStatus = false;
+        }
+      } else {
+        if (bytesReceived <= MAX_I2C_MESSAGE_SIZE) {
+          message.buffer[bytesReceived-1] = Wire.read();
+          DBUG_LOG(F("Data received:"));
+          DBUG_LOG(message.buffer[bytesReceived-1], HEX);
+        }
+      }
+      bytesReceived++;
+    }
+    if (errorStatus) {
+      processResponse(message);
+    }
+  } else {
+    ERROR_LOG(F("I2C transmission failed with code"));
+    ERROR_LOG(transmissionCode);
+  }
 }
 
 void HomeI2CMaster::processResponse(I2CMessage& message) {
@@ -76,7 +93,7 @@ void HomeI2CMaster::processResponse(I2CMessage& message) {
         break;
       case WIFI_STATUS_CMD:
         DBUG_LOG(F("WIFI_STATUS_CMD"));
-        peripheral->setWifiStatusState(message.buffer[0]);
+        peripheral->setWifiStatus(message.buffer[0]);
         break;
       default:
         ERROR_LOG(F("(HomeI2CMaster::processCommand) Command ID is invalid:"));
