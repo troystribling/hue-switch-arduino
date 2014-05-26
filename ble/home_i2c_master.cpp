@@ -4,52 +4,86 @@
 #include "home_i2c_master.h"
 #include "services.h"
 
+#define I2C_TIMEOUT_DELAY   1000
+#define I2C_TIMEOUT         10
+
 void HomeI2CMaster::begin() {
   Wire.begin();
 }
 
-void HomeI2CMaster::writeAndReceiveResponse(uint8_t address, I2CMessage& message, size_t requestSize, size_t responseSize) {
-  uint8_t bytesReceived = 0;
-  bool errorStatus = true;
-  DBUG_LOG(F("Begin transmission of message"));
-  DBUG_LOG(message.messageID);
-  Wire.beginTransmission(address);
-  Wire.write((uint8_t*)&message, responseSize);
-  uint8_t transmissionCode = Wire.endTransmission();
+void HomeI2CMaster::writeAndRead(uint8_t address, I2CMessage& message, size_t requestSize, size_t responseSize) {
+  uint8_t transmissionCode = write(address, message, requestSize);
   DBUG_LOG(F("transmissionCode"));
   DBUG_LOG(transmissionCode);
   if (transmissionCode == 0) {
-    DBUG_LOG(F("Receiving response of size"));
-    DBUG_LOG(responseSize);
-    Wire.requestFrom(address, responseSize);
+    // read(address, responseSize, message.messageID);
+  } else {
+    ERROR_LOG(F("I2C transmission failed with code"));
+    ERROR_LOG(transmissionCode);
+  }
+}
+
+uint8_t HomeI2CMaster::write(uint8_t address, I2CMessage& message, size_t messageSize) {
+  uint8_t bytesReceived = 0;
+  DBUG_LOG(F("Begin transmission of message"));
+  DBUG_LOG(message.messageID);
+  DBUG_LOG(F("data"));
+  for (int i = 0; i < messageSize-1; i++) {
+    DBUG_LOG(message.buffer[i]);
+  }
+  Wire.beginTransmission(address);
+  Wire.write((uint8_t*)&message, messageSize);
+  return Wire.endTransmission();
+}
+
+void HomeI2CMaster::read(uint8_t address, size_t messageSize, uint8_t messageID) {
+  uint8_t bytesReceived;
+  uint8_t retryCount = 0;
+  bool retry = true;
+  bool readSuccesful = true;
+  I2CMessage response;
+  DBUG_LOG(F("Receiving response: size, messageID"));
+  DBUG_LOG(messageSize);
+  DBUG_LOG(messageID);
+  while (retry) {
+    bytesReceived = 0;
+    DBUG_LOG(F("Request Attempt:"));
+    DBUG_LOG(retryCount+1);
+    Wire.requestFrom(address, messageSize);
     DBUG_LOG(F("Response received"));
     while (Wire.available()) {
       if (bytesReceived == 0) {
-        uint8_t messageID = Wire.read();
-        if (messageID == message.messageID) {
-          message.messageID = messageID;
-          DBUG_LOG(F("Message ID:"));
-          DBUG_LOG(message.messageID);
+        response.messageID = Wire.read();
+        if (response.messageID != messageID) {
+          DBUG_LOG(F("mesageID invalid. retrying"));
+          DBUG_LOG(response.messageID);
+          retryCount++;
+          if (retryCount < I2C_TIMEOUT) {
+            delay(I2C_TIMEOUT_DELAY);
+          } else {
+            ERROR_LOG(F("I2C Timeout"));
+            readSuccesful = false;
+            retry = false;
+          }
         } else {
-          ERROR_LOG(F("Response messageID invalid:"));
-          ERROR_LOG(messageID);
-          errorStatus = false;
+          DBUG_LOG(F("messageID valid:"));
+          DBUG_LOG(response.messageID);
+          retry = false;
         }
       } else {
         if (bytesReceived <= MAX_I2C_MESSAGE_SIZE) {
-          message.buffer[bytesReceived-1] = Wire.read();
+          response.buffer[bytesReceived-1] = Wire.read();
           DBUG_LOG(F("Data received:"));
-          DBUG_LOG(message.buffer[bytesReceived-1], HEX);
+          DBUG_LOG(response.buffer[bytesReceived-1], HEX);
         }
       }
       bytesReceived++;
     }
-    if (errorStatus) {
-      processResponse(message);
-    }
+  }
+  if (readSuccesful) {
+    processResponse(response);
   } else {
-    ERROR_LOG(F("I2C transmission failed with code"));
-    ERROR_LOG(transmissionCode);
+    peripheral->sendMessageNack(messageID);
   }
 }
 
@@ -106,7 +140,7 @@ void  HomeI2CMaster::wifiStatus() {
   DBUG_LOG(F("wifiStatus"));
   I2CMessage message;
   message.messageID = WIFI_STATUS_CMD;
-  writeAndReceiveResponse(HUE_LIGHTS_I2C_ADDRESS, message, WIFI_STATUS_REQUEST_SIZE, WIFI_STATUS_RESPONSE_SIZE);
+  writeAndRead(HUE_LIGHTS_I2C_ADDRESS, message, WIFI_STATUS_CMD_REQUEST_SIZE, WIFI_STATUS_CMD_RESPONSE_SIZE);
 }
 
 void HomeI2CMaster::setSwitch(uint8_t value) {
@@ -115,5 +149,5 @@ void HomeI2CMaster::setSwitch(uint8_t value) {
   I2CMessage message;
   message.messageID = HUE_LIGHTS_ALL_LIGHTS_ON_CMD;
   message.buffer[0] = value;
-  writeAndReceiveResponse(HUE_LIGHTS_I2C_ADDRESS, message, HUE_LIGHTS_ALL_LIGHTS_ON_CMD_REQUEST_SIZE, HUE_LIGHTS_ALL_LIGHTS_ON_CMD_RESPONSE_SIZE);
+  writeAndRead(HUE_LIGHTS_I2C_ADDRESS, message, HUE_LIGHTS_ALL_LIGHTS_ON_CMD_REQUEST_SIZE, HUE_LIGHTS_ALL_LIGHTS_ON_CMD_RESPONSE_SIZE);
 }

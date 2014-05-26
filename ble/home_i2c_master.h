@@ -13,7 +13,9 @@ public:
   ~HomeI2CMaster(){};
 
   void begin();
-  void writeAndReceiveResponse(uint8_t address, I2CMessage& message, size_t requestSize, size_t responseSize);
+  void writeAndRead(uint8_t address, I2CMessage& message, size_t requestSize, size_t responseSize);
+  uint8_t write(uint8_t address, I2CMessage& message, size_t messageSize);
+  void read(uint8_t address, size_t messageSize, uint8_t messageID);
   void processResponse(I2CMessage& message);
 
   void wifiStatus();

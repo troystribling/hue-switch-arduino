@@ -115,6 +115,50 @@ bool Peripheral::doTimingChange() {
 }
 
 // acks
+void Peripheral::sendMessageNack(uint8_t messageID) {
+  switch (messageID) {
+    case HUE_LIGHTS_ALL_LIGHTS_ON_CMD:
+      sendNack(PIPE_HUE_LIGHTS_HUE_SWITCH_RX_ACK, HUE_LIGHTS_ERROR);
+      break;
+    case HUE_LIGHTS_CREATE_SCENE_CMD:
+      break;
+    case HUE_LIGHTS_UPDATE_SCENE_CMD:
+      break;
+    case HUE_LIGHTS_REMOVE_SCENE_CMD:
+      break;
+    case HUE_LIGHTS_NEXT_SCENE_CMD:
+      break;
+    case HUE_LIGHTS_GET_SCENE_NAME_CMD:
+      break;
+    case HUE_LIGHTS_SET_SCENE_NAME_CMD:
+      break;
+    case HUE_LIGHTS_GET_SCENE_ID_CMD:
+      break;
+    case HUE_LIGHTS_GET_SCENE_CMD:
+      break;
+    case HUE_LIGHTS_GET_CURRENT_SCENE_ID_CMD:
+      break;
+    case HUE_LIGHTS_SET_CURRENT_SCENE_CMD:
+      break;
+    case HUE_LIGHTS_GET_LIGHT_COLOR_CMD:
+      break;
+    case HUE_LIGHTS_SET_LIGHT_COLOR_CMD:
+      break;
+    case HUE_LIGHTS_GET_LIGHT_COUNT_CMD:
+      break;
+    case HUE_LIGHTS_SET_LIGHT_COUNT_CMD:
+      break;
+    case HUE_LIGHTS_GET_SCENE_COUNT_CMD:
+      break;
+    case HUE_LIGHTS_ERASE_EEPROM_CMD:
+      break;
+    default:
+      ERROR_LOG(F("(Peripheral::sendNack) Command ID is invalid:"));
+      ERROR_LOG(messageID, DEC);
+      break;
+  }
+}
+
 void Peripheral::sendSwitchAck(uint8_t* message) {
   DBUG_LOG(F("sendSwitchAck status, value"));
   DBUG_LOG(message[0]);
@@ -135,6 +179,8 @@ void Peripheral::setLocation(uint8_t* data) {
 
 void Peripheral::setSwitch(uint8_t* data) {
   uint8_t switchState = data[0];
+  DBUG_LOG(F("setSwitch: switchState"));
+  DBUG_LOG(switchState);
   i2cMaster->setSwitch(switchState);
 }
 
@@ -172,7 +218,7 @@ void Peripheral::setWifiStatus(uint8_t wifiStatus) {
 }
 
 void Peripheral::updateState(StateObject& state) {
-  DBUG_LOG(F("Peripheral::setState"));
+  DBUG_LOG(F("Peripheral::updateState: wifiStatus, switchState"));
   DBUG_LOG(state.wifiStatus);
   DBUG_LOG(state.switchState);
   stateObjectEEPROM.update(0, state);
@@ -185,17 +231,24 @@ void Peripheral::getState(StateObject& state) {
 void Peripheral::initState() {
   StateObject state;
   getState(state);
+  DBUG_LOG(F("initState: wifiStatus, switchStatus"));
+  DBUG_LOG(state.wifiStatus);
+  DBUG_LOG(state.switchState);
   sendWifiStatus(state.wifiStatus);
   sendSwitchState(state.switchState);
   i2cMaster->setSwitch(state.switchState);
 }
 
 void Peripheral::sendSwitchState(uint8_t switchState) {
+  DBUG_LOG(F("sendSwitchState"));
+  DBUG_LOG(switchState);
   sendData(PIPE_HUE_LIGHTS_HUE_SWITCH_TX, &switchState, PIPE_HUE_LIGHTS_HUE_SWITCH_TX_MAX_SIZE);
   setData(PIPE_HUE_LIGHTS_HUE_SWITCH_SET, &switchState, PIPE_HUE_LIGHTS_HUE_SWITCH_SET_MAX_SIZE);
 }
 
 void Peripheral::sendWifiStatus(uint8_t wifiStatus) {
+  DBUG_LOG(F("sendWifiStatus"));
+  DBUG_LOG(wifiStatus);
   sendData(PIPE_HUE_LIGHTS_HUE_STATUS_TX, &wifiStatus, PIPE_HUE_LIGHTS_HUE_STATUS_TX_MAX_SIZE);
   setData(PIPE_HUE_LIGHTS_HUE_STATUS_SET, &wifiStatus, PIPE_HUE_LIGHTS_HUE_STATUS_SET_MAX_SIZE);
 }

@@ -29,6 +29,7 @@ public:
 
   void setI2CMaster(HomeI2CMaster* _i2cMaster) {i2cMaster = _i2cMaster;};
 
+  void sendMessageNack(uint8_t messageId);
   void setSwitchState(uint8_t switchValue);
   void setWifiStatus(uint8_t wifiStatus);
   void sendSwitchAck(uint8_t* message);

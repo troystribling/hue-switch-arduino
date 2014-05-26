@@ -14,6 +14,7 @@ public:
 
   void begin();
   void listen();
+  void processRequest();
 
 private:
 
@@ -24,7 +25,6 @@ private:
 
 private:
 
-  void processRequest();
   void processStatus(I2CMessage& requestMessage);
   void processSetAllLightsOn(I2CMessage& requestMessage);
   void processSetLightColor(I2CMessage& requestMessage);

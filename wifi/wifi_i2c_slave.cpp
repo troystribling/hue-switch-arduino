@@ -4,9 +4,10 @@
 #include "wifi_i2c_slave.h"
 
 static I2CMessage responseMessage;
-uint8_t responseMessageSize;
+static uint8_t responseMessageSize;
 static I2CMessage requestMessage;
 static bool requestAvailable;
+static WifiI2CSlave* i2cSlave;
 
 extern "C" {
   void receiveEvent(int numBytes);
@@ -29,16 +30,13 @@ void receiveEvent(int numBytes) {
 }
 
 void requestEvent() {
-  DBUG_LOG(F("request message size, buffer"));
-  DBUG_LOG(responseMessageSize);
-  for (int i = 0; i < responseMessageSize; i++) {
-    DBUG_LOG(((uint8_t*)&responseMessage)[i]);
-  }
   Wire.write((uint8_t*)&responseMessage, responseMessageSize);
 }
 
 WifiI2CSlave::WifiI2CSlave(HueLightsClient* a_client, uint8_t address) : address(address), client(a_client) {
   requestAvailable = false;
+  responseMessage.messageID = I2C_MESSAGE_INVALID;
+  i2cSlave = this;
 }
 
 void WifiI2CSlave::begin() {
@@ -114,7 +112,7 @@ void  WifiI2CSlave::processRequest() {
         DBUG_LOG(F("WIFI_STATUS_CMD"));
         responseMessage.messageID = WIFI_STATUS_CMD;
         responseMessage.buffer[0] = client->lanConnected();
-        responseMessageSize = WIFI_STATUS_RESPONSE_SIZE;
+        responseMessageSize = WIFI_STATUS_CMD_RESPONSE_SIZE;
         break;
       default:
         ERROR_LOG(F("I2C Command invalid:"));
@@ -126,9 +124,9 @@ void  WifiI2CSlave::processRequest() {
 void WifiI2CSlave::processSetAllLightsOn(I2CMessage& requestMessage) {
   bool lightOn = (bool)requestMessage.buffer[0];
   bool status = client->setAllLightsOn(lightOn);
-  DBUG_LOG(F("processSetAllLightsOn, lightOn, status"));
-  DBUG_LOG(lightOn);
+  DBUG_LOG(F("processSetAllLightsOn, status, lightOn"));
   DBUG_LOG(status);
+  DBUG_LOG(lightOn);
   responseMessage.messageID = HUE_LIGHTS_ALL_LIGHTS_ON_CMD;
   responseMessage.buffer[0] = status;
   responseMessage.buffer[1] = lightOn;
