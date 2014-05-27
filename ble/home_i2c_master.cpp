@@ -16,7 +16,7 @@ void HomeI2CMaster::writeAndRead(uint8_t address, I2CMessage& message, size_t re
   DBUG_LOG(F("transmissionCode"));
   DBUG_LOG(transmissionCode);
   if (transmissionCode == 0) {
-    // read(address, responseSize, message.messageID);
+    read(address, responseSize, message.messageID);
   } else {
     ERROR_LOG(F("I2C transmission failed with code"));
     ERROR_LOG(transmissionCode);

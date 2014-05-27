@@ -24,7 +24,7 @@ void Peripheral::begin() {
 
 void Peripheral::loop() {
   if (millis() % updatePeriod == 0) {
-    i2cMaster->wifiStatus();
+    // i2cMaster->wifiStatus();
   }
   BlueCapBondedPeripheral::loop();
 }

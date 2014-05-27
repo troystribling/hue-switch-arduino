@@ -70,10 +70,15 @@ bool HueLightsClient::setLightOn(uint8_t lightID, bool on) {
   String headers = String(HTTP_HEADERS);
   headers += String(body.length());
   headers += String("\r\n");
+  DBUG_LOG(F("setLightOn: url, body, headers"));
+  DBUG_LOG(url);
+  DBUG_LOG(body);
+  DBUG_LOG(headers);
   while (count < MAX_HTTP_CONNECT_TRIES && !status) {
     if (httpRequest(F("PUT"), &url, &headers, &body)) {
       uint16_t httpStatus = readHTTPResponseStatus();
       if (httpStatus == 200) {
+        DBUG_LOG(F("setLightOn: success"));
         status = true;
       } else {
         ERROR_LOG(F("Set light on failed"));
@@ -112,6 +117,10 @@ bool HueLightsClient::setLightColor(uint8_t lightID, const HueLight& light) {
   String headers = String(HTTP_HEADERS);
   headers += String(body.length());
   headers += String("\r\n");
+  DBUG_LOG(F("setLightColor: url, body, headers"));
+  DBUG_LOG(url);
+  DBUG_LOG(body);
+  DBUG_LOG(headers);
   while (count < MAX_HTTP_CONNECT_TRIES && !status) {
     if (httpRequest(F("PUT"), &url, &headers, &body)) {
       uint16_t httpStatus = readHTTPResponseStatus();
@@ -131,10 +140,13 @@ bool HueLightsClient::setLightCount() {
   uint8_t count = 0;
   String url = String(siteRoot);
   url += String("/lights");
+  DBUG_LOG(F("setLightCount: url"));
+  DBUG_LOG(url);
   while (count < MAX_HTTP_CONNECT_TRIES && !status) {
     if (httpRequest(F("GET"), &url, NULL, NULL)) {
       uint16_t httpStatus = readHTTPResponseStatus();
       if (httpStatus == 200) {
+        DBUG_LOG(F("setLightCount success"));
         uint8_t lightCount = readHTTPLightsResponse();
         if (lightCount > 0) {
           NumberOfLights count = {0x01, lightCount};
@@ -203,6 +215,7 @@ void HueLightsClient::setCurrentScene(uint8_t sceneID) {
 bool HueLightsClient::siteConnect() {
   if (serverIpAddress != 0) {
     client = cc3000.connectTCP(serverIpAddress, 80);
+    DBUG_LOG(F("siteConnect: connected"));
     return client.connected();
   } else {
     ERROR_LOG(F("Cannot connect to server becuase server IP is not available:"));
@@ -238,6 +251,9 @@ bool HueLightsClient::displayConnectionDetails() {
 bool HueLightsClient::httpRequest(const __FlashStringHelper* method, String* url, String* headers, String* body) {
   uint8_t count = 0;
   bool status = false;
+  DBUG_LOG(F("httpRequest: method, url, headers, body"));
+  DBUG_LOG(method);
+  DBUG_LOG(*url);
   DBUG_FREE_MEMORY;
   while (count < MAX_HTTP_CONNECT_TRIES && !status) {
     if (siteConnect()) {
@@ -248,12 +264,14 @@ bool HueLightsClient::httpRequest(const __FlashStringHelper* method, String* url
       client.fastrprint(F(" HTTP/1.1\r\n"));
       client.fastrprint(F("Host: ")); client.fastrprint(host); client.fastrprint(F("\r\n"));
       if (headers) {
+        DBUG_LOG(*headers);
         char headersBuffer[headers->length()+1];
         headers->toCharArray(headersBuffer, headers->length()+1);
         client.fastrprint(headersBuffer);
         client.fastrprint(F("\r\n"));
       }
       if (body) {
+        DBUG_LOG(*body);
         char bodyBuffer[body->length()+1];
         body->toCharArray(bodyBuffer, body->length()+1);
         client.fastrprint(bodyBuffer);
@@ -262,7 +280,8 @@ bool HueLightsClient::httpRequest(const __FlashStringHelper* method, String* url
       client.println();
       status = true;
     } else {
-      ERROR_LOG(F("Connection failed"));
+      ERROR_LOG(F("Connection failed: count"));
+      ERROR_LOG(count);
       count++;
     }
   }
