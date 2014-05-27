@@ -31,6 +31,7 @@ void receiveEvent(int numBytes) {
 
 void requestEvent() {
   Wire.write((uint8_t*)&responseMessage, responseMessageSize);
+  responseMessage.messageID = I2C_MESSAGE_INVALID;
 }
 
 WifiI2CSlave::WifiI2CSlave(HueLightsClient* a_client, uint8_t address) : address(address), client(a_client) {

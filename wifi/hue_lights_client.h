@@ -49,6 +49,7 @@ public:
   //light commands
   bool setLightOn(uint8_t lightID, bool on);
   bool setAllLightsOn(bool on);
+  bool setLightOnRequest(uint8_t lightID, bool on);
   bool setLightColor(uint8_t lightID, const HueLight& light);
   bool setLightCount();
   uint8_t getLightCount();

@@ -222,6 +222,8 @@ bool HueLightsClient::siteConnect() {
     ERROR_LOG(serverIpAddress, HEX);
     return false;
   }
+  // hardware workaround
+  delay(1000);
 }
 
 bool HueLightsClient::siteClose() {
@@ -251,10 +253,6 @@ bool HueLightsClient::displayConnectionDetails() {
 bool HueLightsClient::httpRequest(const __FlashStringHelper* method, String* url, String* headers, String* body) {
   uint8_t count = 0;
   bool status = false;
-  DBUG_LOG(F("httpRequest: method, url, headers, body"));
-  DBUG_LOG(method);
-  DBUG_LOG(*url);
-  DBUG_FREE_MEMORY;
   while (count < MAX_HTTP_CONNECT_TRIES && !status) {
     if (siteConnect()) {
       char urlBuffer[url->length()+1];
@@ -282,6 +280,7 @@ bool HueLightsClient::httpRequest(const __FlashStringHelper* method, String* url
     } else {
       ERROR_LOG(F("Connection failed: count"));
       ERROR_LOG(count);
+      siteClose();
       count++;
     }
   }
@@ -294,6 +293,7 @@ uint16_t HueLightsClient::readHTTPResponseStatus() {
   uint16_t msgCount = 0, httpStatus = 0;
   char statusBuffer[4];
   statusBuffer[3] = '\0';
+  DBUG_LOG(F("readHTTPResponseStatus: status"));
   while (client.connected() && (millis() - lastRead < IDLE_TIMEOUT_MS)) {
     while (client.available()) {
       char c = client.read();
@@ -312,6 +312,7 @@ uint16_t HueLightsClient::readHTTPResponseStatus() {
     }
   }
   httpStatus = atoi(statusBuffer);
+  DBUG_LOG(httpStatus);
   return httpStatus;
 }
 
