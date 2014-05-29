@@ -36,7 +36,7 @@ struct I2CMessage {
 #define WIFI_STATUS_CMD_RESPONSE_SIZE                 2
 
 #define HUE_LIGHTS_ALL_LIGHTS_ON_CMD_REQUEST_SIZE     2
-#define HUE_LIGHTS_ALL_LIGHTS_ON_CMD_RESPONSE_SIZE    3
+#define HUE_LIGHTS_ALL_LIGHTS_ON_CMD_RESPONSE_SIZE    2
 
 #define HUE_LIGHTS_ERROR                              0x80
 

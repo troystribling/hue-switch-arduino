@@ -90,12 +90,14 @@ void Peripheral::didReceiveCommandResponse(uint8_t commandId, uint8_t* data, uin
 }
 
 void Peripheral::didDisconnect() {
+  DBUG_LOG(F("didDisconnect"));
 }
 
 void Peripheral::didTimeout() {
 }
 
 void Peripheral::didConnect() {
+  DBUG_LOG(F("didConnect"));
 }
 
 void Peripheral::didStartAdvertising() {
@@ -159,18 +161,10 @@ void Peripheral::sendMessageNack(uint8_t messageID) {
   }
 }
 
-void Peripheral::sendSwitchAck(uint8_t* message) {
-  DBUG_LOG(F("sendSwitchAck status, value"));
-  DBUG_LOG(message[0]);
-  DBUG_LOG(message[1]);
-  if (message[0] == 1) {
-    if (sendAck(PIPE_HUE_LIGHTS_HUE_SWITCH_RX_ACK)) {
-      setSwitchState(message[1]);
-    }
-  } else {
-    sendNack(PIPE_HUE_LIGHTS_HUE_SWITCH_RX_ACK, HUE_LIGHTS_ERROR);
-    ERROR_LOG(F("Switch failed"));
-  }
+void Peripheral::sendSwitchAck(uint8_t* data) {
+  DBUG_LOG(F("sendSwitchAck: value"));
+  DBUG_LOG(data[0]);
+  setSwitchState(data[0]);
 }
 
 // update attributes

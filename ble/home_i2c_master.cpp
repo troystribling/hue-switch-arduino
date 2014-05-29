@@ -5,7 +5,7 @@
 #include "services.h"
 
 #define I2C_TIMEOUT_DELAY   1000
-#define I2C_TIMEOUT         30
+#define I2C_TIMEOUT         15
 
 void HomeI2CMaster::begin() {
   Wire.begin();

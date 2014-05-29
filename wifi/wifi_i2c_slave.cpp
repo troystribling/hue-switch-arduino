@@ -124,14 +124,12 @@ void  WifiI2CSlave::processRequest() {
 
 void WifiI2CSlave::processSetAllLightsOn(I2CMessage& requestMessage) {
   bool lightOn = (bool)requestMessage.buffer[0];
-  bool status = client->setAllLightsOn(lightOn);
-  DBUG_LOG(F("processSetAllLightsOn, status, lightOn"));
-  DBUG_LOG(status);
+  DBUG_LOG(F("processSetAllLightsOn, lightOn"));
   DBUG_LOG(lightOn);
   responseMessage.messageID = HUE_LIGHTS_ALL_LIGHTS_ON_CMD;
-  responseMessage.buffer[0] = status;
-  responseMessage.buffer[1] = lightOn;
+  responseMessage.buffer[0] = lightOn;
   responseMessageSize = HUE_LIGHTS_ALL_LIGHTS_ON_CMD_RESPONSE_SIZE;
+  client->setAllLightsOn(lightOn);
 }
 
 void WifiI2CSlave::processSetLightColor(I2CMessage& requestMessage) {
