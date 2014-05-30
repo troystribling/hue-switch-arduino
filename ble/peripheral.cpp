@@ -164,6 +164,7 @@ void Peripheral::sendMessageNack(uint8_t messageID) {
 void Peripheral::sendSwitchAck(uint8_t* data) {
   DBUG_LOG(F("sendSwitchAck: value"));
   DBUG_LOG(data[0]);
+  sendAck(PIPE_HUE_LIGHTS_HUE_SWITCH_RX_ACK);
   setSwitchState(data[0]);
 }
 
