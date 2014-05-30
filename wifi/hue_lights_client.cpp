@@ -71,7 +71,7 @@ bool HueLightsClient::setLightOn(uint8_t lightID, bool on) {
   headers += String(body.length());
   headers += String("\r\n");
   while (count < MAX_HTTP_CONNECT_TRIES && !status) {
-    delay(500);
+    delay(250);
     if (httpRequest(F("PUT"), &url, &headers, &body)) {
       uint16_t httpStatus = readHTTPResponseStatus();
       if (httpStatus == 200) {
@@ -205,7 +205,7 @@ uint8_t HueLightsClient::getCurrentSceneID() {
 bool HueLightsClient::siteConnect() {
   if (serverIpAddress != 0) {
     // hardware workaround
-    delay(500);
+    delay(250);
     client = cc3000.connectTCP(serverIpAddress, 80);
     return client.connected();
   } else {
