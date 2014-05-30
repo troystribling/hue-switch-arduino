@@ -127,7 +127,6 @@ void WifiI2CSlave::processSetAllLightsOn(I2CMessage& requestMessage) {
   DBUG_LOG(F("processSetAllLightsOn, lightOn"));
   DBUG_LOG(lightOn);
   responseMessage.messageID = HUE_LIGHTS_ALL_LIGHTS_ON_CMD;
-  responseMessage.buffer[0] = lightOn;
   responseMessageSize = HUE_LIGHTS_ALL_LIGHTS_ON_CMD_RESPONSE_SIZE;
   client->setAllLightsOn(lightOn);
 }
@@ -138,15 +137,20 @@ void WifiI2CSlave::processSetLightColor(I2CMessage& requestMessage) {
   light.brightness = requestMessage.buffer[1];
   light.saturation = requestMessage.buffer[2];
   light.hue = requestMessage.buffer[3];
-  if (client->setLightColor(lightID, light)) {
-    scene.lights[lightID].brightness = light.brightness;
-    scene.lights[lightID].saturation = light.saturation;
-    scene.lights[lightID].hue = light.hue;
-  }
+  responseMessage.messageID = HUE_LIGHTS_SET_LIGHT_COLOR_CMD;
+  responseMessageSize = HUE_LIGHTS_SET_LIGHT_COLOR_CMD_RESPONSE_SIZE;
+  client->setLightColor(lightID, light);
+  scene.lights[lightID].brightness = light.brightness;
+  scene.lights[lightID].saturation = light.saturation;
+  scene.lights[lightID].hue = light.hue;
 }
 
 void WifiI2CSlave::processGetLightColor(I2CMessage& requestMessage) {
   uint8_t lightID = requestMessage.buffer[0];
+  INFO_LOG(lightID);
+  INFO_LOG(scene.lights[lightID].brightness, DEC);
+  INFO_LOG(scene.lights[lightID].saturation, DEC);
+  INFO_LOG(scene.lights[lightID].hue, DEC);
 }
 
 void WifiI2CSlave::processGetScene(I2CMessage& requestMessage) {
