@@ -56,25 +56,38 @@ void WifiI2CSlave::listen() {
 void  WifiI2CSlave::processRequest() {
   DBUG_FREE_MEMORY;
   switch (requestMessage.messageID) {
+      case HUE_LIGHTS_GET_SCENE_CMD:
+        processGetScene(requestMessage);
+        break;
       case HUE_LIGHTS_ALL_LIGHTS_ON_CMD:
         DBUG_LOG(F("HUE_LIGHTS_ALL_LIGHTS_ON_CMD"));
         processSetAllLightsOn(requestMessage);
         break;
       case HUE_LIGHTS_CREATE_SCENE_CMD:
+        responseMessage.messageID = HUE_LIGHTS_CREATE_SCENE_CMD;
+        responseMessageSize = HUE_LIGHTS_CREATE_SCENE_CMD_RESPONSE_SIZE;
         scene.status = 0x01;
         sceneID = client->createScene(scene);
         break;
       case HUE_LIGHTS_UPDATE_SCENE_CMD:
+        responseMessage.messageID = HUE_LIGHTS_UPDATE_SCENE_CMD;
+        responseMessageSize = HUE_LIGHTS_UPDATE_SCENE_CMD_RESPONSE_SIZE;
         client->updateScene(sceneID, scene);
         break;
       case HUE_LIGHTS_REMOVE_SCENE_CMD:
+        responseMessage.messageID = HUE_LIGHTS_REMOVE_SCENE_CMD;
+        responseMessageSize = HUE_LIGHTS_REMOVE_SCENE_CMD_RESPONSE_SIZE;
         client->removeScene(sceneID);
         break;
       case HUE_LIGHTS_NEXT_SCENE_CMD:
+        responseMessage.messageID = HUE_LIGHTS_NEXT_SCENE_CMD;
+        responseMessageSize = HUE_LIGHTS_NEXT_SCENE_CMD_RESPONSE_SIZE;
         client->nextScene(sceneID, scene);
         break;
       case HUE_LIGHTS_GET_SCENE_NAME_CMD:
-        INFO_LOG(scene.name);
+        responseMessage.messageID = HUE_LIGHTS_GET_SCENE_NAME_CMD;
+        memcpy(responseMessage.buffer, scene.name, strlen(scene.name) + 1);
+        responseMessageSize = HUE_LIGHTS_GET_SCENE_NAME_CMD_RESPONSE_SIZE;
         break;
       case HUE_LIGHTS_SET_SCENE_NAME_CMD:
         processSetSceneName(requestMessage);
@@ -162,18 +175,30 @@ void WifiI2CSlave::processGetLightColor(I2CMessage& requestMessage) {
   responseMessageSize = HUE_LIGHTS_GET_LIGHT_COLOR_CMD_RESPONSE_SIZE;
 }
 
+void  WifiI2CSlave::processGetScene(I2CMessage& requestMessage) {
+  sceneID = requestMessage.buffer[0];
+  responseMessage.messageID = HUE_LIGHTS_GET_SCENE_CMD;
+  responseMessageSize = HUE_LIGHTS_GET_SCENE_CMD_RESPONSE_SIZE;
+  client->getScene(sceneID, scene);
+}
+
 void WifiI2CSlave::processSetSceneName(I2CMessage& requestMessage) {
   char* sceneName = (char*)requestMessage.buffer;
   strcpy(scene.name, sceneName);
+  responseMessage.messageID = HUE_LIGHTS_SET_SCENE_NAME_CMD;
+  responseMessageSize = HUE_LIGHTS_SET_SCENE_NAME_CMD_RESPONSE_SIZE;
 }
 
 void WifiI2CSlave::processSetCurrentScene(I2CMessage& requestMessage) {
-  responseMessage.messageID =
   sceneID = requestMessage.buffer[0];
+  responseMessage.messageID = HUE_LIGHTS_SET_CURRENT_SCENE_CMD;
+  responseMessageSize = HUE_LIGHTS_SET_CURRENT_SCENE_CMD_RESPONSE_SIZE;
   client->setCurrentScene(sceneID);
 }
 
 void WifiI2CSlave::processEraseEEPROM(I2CMessage& requestMessage) {
+  responseMessage.messageID = HUE_LIGHTS_ERASE_EEPROM_CMD;
+  responseMessageSize = HUE_LIGHTS_ERASE_EEPROM_CMD_RESPONSE_SIZE;
   for (int i = 0; i < 1024; i++) {
     EEPROM.write(i, 0x00);
   }
