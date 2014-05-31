@@ -80,13 +80,14 @@ void  WifiI2CSlave::processRequest() {
         processSetSceneName(requestMessage);
         break;
       case HUE_LIGHTS_GET_SCENE_ID_CMD:
-        INFO_LOG(sceneID);
-        break;
-      case HUE_LIGHTS_GET_SCENE_CMD:
-        processGetScene(requestMessage);
+        responseMessage.messageID = HUE_LIGHTS_GET_SCENE_ID_CMD;
+        responseMessage.buffer[0] = sceneID;
+        responseMessageSize = HUE_LIGHTS_GET_SCENE_ID_CMD_RESPONSE_SIZE;
         break;
       case HUE_LIGHTS_GET_CURRENT_SCENE_ID_CMD:
-        INFO_LOG(client->getCurrentSceneID());
+        responseMessage.messageID = HUE_LIGHTS_GET_CURRENT_SCENE_ID_CMD;
+        responseMessage.buffer[0] = client->getCurrentSceneID();
+        responseMessageSize = HUE_LIGHTS_GET_CURRENT_SCENE_ID_CMD_RESPONSE_SIZE;
         break;
       case HUE_LIGHTS_SET_CURRENT_SCENE_CMD:
         processSetCurrentScene(requestMessage);
@@ -98,13 +99,19 @@ void  WifiI2CSlave::processRequest() {
         processSetLightColor(requestMessage);
         break;
       case HUE_LIGHTS_GET_LIGHT_COUNT_CMD:
-        INFO_LOG(client->getLightCount());
+        responseMessage.messageID = HUE_LIGHTS_GET_LIGHT_COUNT_CMD;
+        responseMessage.buffer[0] = client->getLightCount();
+        responseMessageSize = HUE_LIGHTS_GET_LIGHT_COUNT_CMD_RESPONSE_SIZE;
         break;
       case HUE_LIGHTS_SET_LIGHT_COUNT_CMD:
+        responseMessage.messageID = HUE_LIGHTS_SET_LIGHT_COUNT_CMD;
+        responseMessageSize = HUE_LIGHTS_SET_LIGHT_COUNT_CMD_RESPONSE_SIZE;
         client->setLightCount();
         break;
       case HUE_LIGHTS_GET_SCENE_COUNT_CMD:
-        INFO_LOG(client->getSceneCount());
+        responseMessage.messageID = HUE_LIGHTS_GET_SCENE_COUNT_CMD;
+        responseMessage.buffer[0] = client->getSceneCount();
+        responseMessageSize = HUE_LIGHTS_GET_SCENE_COUNT_CMD_RESPONSE_SIZE;
         break;
       case HUE_LIGHTS_ERASE_EEPROM_CMD:
         processEraseEEPROM(requestMessage);
@@ -147,15 +154,12 @@ void WifiI2CSlave::processSetLightColor(I2CMessage& requestMessage) {
 
 void WifiI2CSlave::processGetLightColor(I2CMessage& requestMessage) {
   uint8_t lightID = requestMessage.buffer[0];
-  INFO_LOG(lightID);
-  INFO_LOG(scene.lights[lightID].brightness, DEC);
-  INFO_LOG(scene.lights[lightID].saturation, DEC);
-  INFO_LOG(scene.lights[lightID].hue, DEC);
-}
-
-void WifiI2CSlave::processGetScene(I2CMessage& requestMessage) {
-  sceneID = requestMessage.buffer[0];
-  client->getScene(sceneID, scene);
+  responseMessage.messageID = HUE_LIGHTS_GET_LIGHT_COLOR_CMD;
+  responseMessage.buffer[0] = lightID;
+  responseMessage.buffer[1] = scene.lights[lightID].brightness;
+  responseMessage.buffer[2] = scene.lights[lightID].saturation;
+  responseMessage.buffer[3] = scene.lights[lightID].hue;
+  responseMessageSize = HUE_LIGHTS_GET_LIGHT_COLOR_CMD_RESPONSE_SIZE;
 }
 
 void WifiI2CSlave::processSetSceneName(I2CMessage& requestMessage) {
@@ -164,6 +168,7 @@ void WifiI2CSlave::processSetSceneName(I2CMessage& requestMessage) {
 }
 
 void WifiI2CSlave::processSetCurrentScene(I2CMessage& requestMessage) {
+  responseMessage.messageID =
   sceneID = requestMessage.buffer[0];
   client->setCurrentScene(sceneID);
 }
