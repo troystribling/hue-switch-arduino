@@ -136,7 +136,7 @@ void HomeI2CMaster::processResponse(I2CMessage& message) {
   }
 }
 
-void  HomeI2CMaster::wifiStatus() {
+void HomeI2CMaster::wifiStatus() {
   DBUG_LOG(F("wifiStatus"));
   I2CMessage message;
   message.messageID = WIFI_STATUS_CMD;
@@ -150,4 +150,18 @@ void HomeI2CMaster::setSwitch(uint8_t value) {
   message.messageID = HUE_LIGHTS_ALL_LIGHTS_ON_CMD;
   message.buffer[0] = value;
   writeAndRead(HUE_LIGHTS_I2C_ADDRESS, message, HUE_LIGHTS_ALL_LIGHTS_ON_CMD_REQUEST_SIZE, HUE_LIGHTS_ALL_LIGHTS_ON_CMD_RESPONSE_SIZE);
+}
+
+void HomeI2CMaster::numberOfHueLights() {
+  DBUG_LOG(F("numberOfHueLights"));
+  I2CMessage message;
+  message.messageID = HUE_LIGHTS_GET_LIGHT_COUNT_CMD;
+  writeAndRead(HUE_LIGHTS_I2C_ADDRESS, message, HUE_LIGHTS_GET_LIGHT_COUNT_CMD_REQUEST_SIZE, HUE_LIGHTS_GET_LIGHT_COUNT_CMD_RESPONSE_SIZE);
+}
+
+void HomeI2CMaster::numberOfScenes() {
+  DBUG_LOG(F("numberOfScenes"));
+  I2CMessage message;
+  message.messageID = HUE_LIGHTS_GET_SCENE_COUNT_CMD;
+  writeAndRead(HUE_LIGHTS_I2C_ADDRESS, message, HUE_LIGHTS_GET_SCENE_COUNT_CMD_REQUEST_SIZE, HUE_LIGHTS_GET_SCENE_COUNT_CMD_RESPONSE_SIZE);
 }
