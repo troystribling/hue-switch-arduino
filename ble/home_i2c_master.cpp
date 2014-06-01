@@ -118,10 +118,14 @@ void HomeI2CMaster::processResponse(I2CMessage& message) {
       case HUE_LIGHTS_SET_LIGHT_COLOR_CMD:
         break;
       case HUE_LIGHTS_GET_LIGHT_COUNT_CMD:
+        DBUG_LOG(F("HUE_LIGHTS_GET_LIGHT_COUNT_CMD"));
+        peripheral->sendLightCount(message.buffer[0]);
         break;
       case HUE_LIGHTS_SET_LIGHT_COUNT_CMD:
         break;
       case HUE_LIGHTS_GET_SCENE_COUNT_CMD:
+        DBUG_LOG(F("HUE_LIGHTS_GET_SCENE_COUNT_CMD"));
+        peripheral->sendSceneCount(message.buffer[0]);
         break;
       case HUE_LIGHTS_ERASE_EEPROM_CMD:
         break;
@@ -152,8 +156,8 @@ void HomeI2CMaster::setSwitch(uint8_t value) {
   writeAndRead(HUE_LIGHTS_I2C_ADDRESS, message, HUE_LIGHTS_ALL_LIGHTS_ON_CMD_REQUEST_SIZE, HUE_LIGHTS_ALL_LIGHTS_ON_CMD_RESPONSE_SIZE);
 }
 
-void HomeI2CMaster::numberOfHueLights() {
-  DBUG_LOG(F("numberOfHueLights"));
+void HomeI2CMaster::numberOfLights() {
+  DBUG_LOG(F("numberOfLights"));
   I2CMessage message;
   message.messageID = HUE_LIGHTS_GET_LIGHT_COUNT_CMD;
   writeAndRead(HUE_LIGHTS_I2C_ADDRESS, message, HUE_LIGHTS_GET_LIGHT_COUNT_CMD_REQUEST_SIZE, HUE_LIGHTS_GET_LIGHT_COUNT_CMD_RESPONSE_SIZE);

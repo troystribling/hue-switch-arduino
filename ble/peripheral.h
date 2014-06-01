@@ -30,9 +30,12 @@ public:
   void setI2CMaster(HomeI2CMaster* _i2cMaster) {i2cMaster = _i2cMaster;};
 
   void sendMessageNack(uint8_t messageId);
+  void sendSwitchAck(uint8_t* message);
+
   void setSwitchState(uint8_t switchValue);
   void setWifiStatus(uint8_t wifiStatus);
-  void sendSwitchAck(uint8_t* message);
+  void sendLightCount(uint8_t lightCount);
+  void sendSceneCount(uint8_t sceneCount);
 
 protected:
 
@@ -61,13 +64,14 @@ private:
 
   void updateState(StateObject& state);
   void getState(StateObject& state);
-  void initState();
+  void init();
 
 private:
 
   uint16_t                      updatePeriod;
   EEPROMObject<StateObject>     stateObjectEEPROM;
   HomeI2CMaster*                i2cMaster;
+  bool                          shouldInit;
 };
 
 #endif

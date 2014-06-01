@@ -11,6 +11,7 @@ static hal_aci_data_t setup_msgs[NB_SETUP_MESSAGES] PROGMEM = SETUP_MESSAGES_CON
 
 Peripheral::Peripheral(uint8_t _reqn, uint8_t _rdyn, uint8_t _maxBonds, uint16_t _updatePeriod) :
   BlueCapBondedPeripheral(_reqn, _rdyn, EEPROM_OFFSET, _maxBonds),
+  shouldInit(true),
   updatePeriod(_updatePeriod),
   stateObjectEEPROM(EEPROMObject<StateObject>(NUMBER_OF_STATE_OBJECTS_OFFSET, MAX_NUMBER_OF_STATE_OBJECTS)) {
   setServicePipeTypeMapping(services_pipe_type_mapping, NUMBER_OF_PIPES);
@@ -101,7 +102,6 @@ void Peripheral::didConnect() {
 }
 
 void Peripheral::didStartAdvertising() {
-    initState();
 }
 
 void Peripheral::didReceiveError(uint8_t pipe, uint8_t errorCode) {
@@ -210,6 +210,10 @@ void Peripheral::setWifiStatus(uint8_t wifiStatus) {
     sendWifiStatus(state.wifiStatus);
     updateState(state);
   }
+  if (wifiStatus == 1 && shouldInit) {
+    shouldInit = false;
+    init();
+  }
 }
 
 void Peripheral::updateState(StateObject& state) {
@@ -223,17 +227,17 @@ void Peripheral::getState(StateObject& state) {
   stateObjectEEPROM.read(0, state);
 }
 
-void Peripheral::initState() {
+void Peripheral::init() {
   StateObject state;
   getState(state);
-  DBUG_LOG(F("initState: wifiStatus, switchStatus"));
-  DBUG_LOG(state.wifiStatus);
-  DBUG_LOG(state.switchState);
-  sendWifiStatus(state.wifiStatus);
+  i2cMaster->numberOfLights();
+  i2cMaster->numberOfScenes();
   sendSwitchState(state.switchState);
   i2cMaster->setSwitch(state.switchState);
+
 }
 
+// parameter updates
 void Peripheral::sendSwitchState(uint8_t switchState) {
   DBUG_LOG(F("sendSwitchState"));
   DBUG_LOG(switchState);
@@ -247,4 +251,19 @@ void Peripheral::sendWifiStatus(uint8_t wifiStatus) {
   sendData(PIPE_HUE_LIGHTS_HUE_STATUS_TX, &wifiStatus, PIPE_HUE_LIGHTS_HUE_STATUS_TX_MAX_SIZE);
   setData(PIPE_HUE_LIGHTS_HUE_STATUS_SET, &wifiStatus, PIPE_HUE_LIGHTS_HUE_STATUS_SET_MAX_SIZE);
 }
+
+void Peripheral::sendLightCount(uint8_t lightCount) {
+  DBUG_LOG(F("setLightCount"));
+  DBUG_LOG(lightCount);
+  sendData(PIPE_HUE_LIGHTS_HUE_LIGHTS_COUNT_TX, &lightCount, PIPE_HUE_LIGHTS_HUE_LIGHTS_COUNT_TX_MAX_SIZE);
+  setData(PIPE_HUE_LIGHTS_HUE_LIGHTS_COUNT_SET, &lightCount, PIPE_HUE_LIGHTS_HUE_LIGHTS_COUNT_SET_MAX_SIZE);
+}
+
+void Peripheral::sendSceneCount(uint8_t sceneCount) {
+  DBUG_LOG(F("sendSceneCount"));
+  DBUG_LOG(sceneCount);
+  sendData(PIPE_HUE_LIGHTS_HUE_SCENES_COUNT_TX, &sceneCount, PIPE_HUE_LIGHTS_HUE_SCENES_COUNT_TX_MAX_SIZE);
+  setData(PIPE_HUE_LIGHTS_HUE_SCENES_COUNT_SET, &sceneCount, PIPE_HUE_LIGHTS_HUE_SCENES_COUNT_SET_MAX_SIZE);
+}
+
 
