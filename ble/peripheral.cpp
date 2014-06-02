@@ -195,6 +195,9 @@ void Peripheral::setCommand(uint8_t* data) {
 void Peripheral::setSwitchState(uint8_t switchState) {
   StateObject state;
   getState(state);
+  DBUG_LOG(F("setSwitchState: new, old"));
+  DBUG_LOG(switchState);
+  DBUG_LOG(state.switchState);
   if (state.switchState != switchState) {
     state.switchState = switchState;
     sendSwitchState(state.switchState);
@@ -205,19 +208,21 @@ void Peripheral::setSwitchState(uint8_t switchState) {
 void Peripheral::setWifiStatus(uint8_t wifiStatus) {
   StateObject state;
   getState(state);
+  DBUG_LOG(F("setWifiStatus: new, old"));
+  DBUG_LOG(wifiStatus);
+  DBUG_LOG(state.wifiStatus);
   if (state.wifiStatus != wifiStatus) {
     state.wifiStatus = wifiStatus;
     sendWifiStatus(state.wifiStatus);
     updateState(state);
   }
   if (wifiStatus == 1 && shouldInit) {
-    shouldInit = false;
     init();
   }
 }
 
 void Peripheral::updateState(StateObject& state) {
-  DBUG_LOG(F("Peripheral::updateState: wifiStatus, switchState"));
+  DBUG_LOG(F("updateState: wifiStatus, switchState"));
   DBUG_LOG(state.wifiStatus);
   DBUG_LOG(state.switchState);
   stateObjectEEPROM.update(0, state);
@@ -225,14 +230,20 @@ void Peripheral::updateState(StateObject& state) {
 
 void Peripheral::getState(StateObject& state) {
   stateObjectEEPROM.read(0, state);
+  DBUG_LOG(F("getState: wifiStatus, switchState"));
+  DBUG_LOG(state.wifiStatus);
+  DBUG_LOG(state.switchState);
 }
 
 void Peripheral::init() {
+  DBUG_LOG(F("init"));
+  shouldInit = false;
   StateObject state;
   getState(state);
+  sendWifiStatus(state.wifiStatus);
+  sendSwitchState(state.switchState);
   i2cMaster->numberOfLights();
   i2cMaster->numberOfScenes();
-  sendSwitchState(state.switchState);
   i2cMaster->setSwitch(state.switchState);
 
 }

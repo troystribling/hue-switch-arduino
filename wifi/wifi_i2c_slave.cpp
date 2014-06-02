@@ -147,6 +147,7 @@ void WifiI2CSlave::processSetAllLightsOn(I2CMessage& requestMessage) {
   DBUG_LOG(F("processSetAllLightsOn, lightOn"));
   DBUG_LOG(lightOn);
   responseMessage.messageID = HUE_LIGHTS_ALL_LIGHTS_ON_CMD;
+  responseMessage.buffer[0] = lightOn;
   responseMessageSize = HUE_LIGHTS_ALL_LIGHTS_ON_CMD_RESPONSE_SIZE;
   client->setAllLightsOn(lightOn);
 }
