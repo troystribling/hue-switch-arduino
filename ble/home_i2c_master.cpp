@@ -156,16 +156,28 @@ void HomeI2CMaster::setSwitch(uint8_t value) {
   writeAndRead(HUE_LIGHTS_I2C_ADDRESS, message, HUE_LIGHTS_ALL_LIGHTS_ON_CMD_REQUEST_SIZE, HUE_LIGHTS_ALL_LIGHTS_ON_CMD_RESPONSE_SIZE);
 }
 
-void HomeI2CMaster::numberOfLights() {
-  DBUG_LOG(F("numberOfLights"));
+void HomeI2CMaster::getNumberOfLights() {
+  DBUG_LOG(F("getNumberOfLights"));
   I2CMessage message;
   message.messageID = HUE_LIGHTS_GET_LIGHT_COUNT_CMD;
   writeAndRead(HUE_LIGHTS_I2C_ADDRESS, message, HUE_LIGHTS_GET_LIGHT_COUNT_CMD_REQUEST_SIZE, HUE_LIGHTS_GET_LIGHT_COUNT_CMD_RESPONSE_SIZE);
 }
 
-void HomeI2CMaster::numberOfScenes() {
-  DBUG_LOG(F("numberOfScenes"));
+void HomeI2CMaster::getNumberOfScenes() {
+  DBUG_LOG(F("getNumberOfScenes"));
   I2CMessage message;
   message.messageID = HUE_LIGHTS_GET_SCENE_COUNT_CMD;
   writeAndRead(HUE_LIGHTS_I2C_ADDRESS, message, HUE_LIGHTS_GET_SCENE_COUNT_CMD_REQUEST_SIZE, HUE_LIGHTS_GET_SCENE_COUNT_CMD_RESPONSE_SIZE);
+}
+
+void HomeI2CMaster::getSceneID() {
+}
+
+void HomeI2CMaster::getCurrentSceneID() {
+}
+
+void HomeI2CMaster::getSceneName() {
+}
+
+void HomeI2CMaster::getLightColor(uint8_t lightID) {
 }

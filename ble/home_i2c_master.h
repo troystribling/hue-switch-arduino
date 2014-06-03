@@ -20,8 +20,12 @@ public:
 
   void wifiStatus();
   void setSwitch(uint8_t value);
-  void numberOfLights();
-  void numberOfScenes();
+  void getNumberOfLights();
+  void getNumberOfScenes();
+  void getSceneID();
+  void getCurrentSceneID();
+  void getSceneName();
+  void getLightColor(uint8_t lightID);
 
 private:
 

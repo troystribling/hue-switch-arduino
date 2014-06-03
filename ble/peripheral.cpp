@@ -242,8 +242,8 @@ void Peripheral::init() {
   getState(state);
   sendWifiStatus(state.wifiStatus);
   sendSwitchState(state.switchState);
-  i2cMaster->numberOfLights();
-  i2cMaster->numberOfScenes();
+  i2cMaster->getNumberOfLights();
+  i2cMaster->getNumberOfScenes();
   i2cMaster->setSwitch(state.switchState);
 
 }
